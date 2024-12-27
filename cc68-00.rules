@@ -2084,9 +2084,9 @@ L%3
 	tsx
 	ldab %1
 =
-	clrb
-	pshb
-	pshb
+	clra
+	psha
+	psha
 	tsx
 	ldab %1
 
@@ -2633,8 +2633,8 @@ L%3
 	tsx
 
 	tsx
-L%1:
+%1:
 	tsx
 =
-L%1:
+%1:
 	tsx
