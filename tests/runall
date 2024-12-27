@@ -1,0 +1,22 @@
+#!/bin/sh
+
+PATH=/opt/cc68/bin:/opt/fcc/bin:$PATH
+#OPT=-O3
+OPT=
+
+for i in [0-9]*.c
+do
+	b=$(basename $i .c)
+	echo  $b":"
+	cc68 $OPT -m6800 -o $b $b.c 
+	cc68 $OPT -m6800 -S $b.c
+	echo emu6800 -d 6800 $b
+#	emu6800 -d 6800 $b
+	emu6800 6800 $b
+	result=$?
+	echo $result
+	if [ $result -ne 0 ] ; then
+		exit $result
+	fi
+done
+

@@ -1,0 +1,18 @@
+#!/bin/sh
+
+PATH=/opt/cc68/bin:/opt/fcc/bin:$PATH
+#OPT=-O3
+OPT=
+
+b=$(basename $1 .c)
+echo  $b":"
+cc68 $OPT -m6800 -o $b $b.c 
+cc68 $OPT -m6800 -S $b.c
+echo emu6800 -d 6800 $b
+#emu6800 -d 6800 $b
+emu6800 6800 $b
+result=$?
+echo $result
+if [ $result -ne 0 ] ; then
+	exit $result
+fi
