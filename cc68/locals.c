@@ -516,7 +516,6 @@ void DeclareLocals (void)
 
     /* Loop until we don't find any more variables */
     while (1) {
-
         /* Check variable declarations. We need to distinguish between a
         ** default int type and the end of variable declarations. So we
         ** will do the following: If there is no explicit storage class

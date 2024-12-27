@@ -1,16 +1,16 @@
-
+;
+;	isascii(unsigned char c)
+;		return (c <= 0x7f);
+;
 		.export _isascii
-
 		.code
 
 _isascii:
 		clra
+		clrb
 		tsx
-		ldab 3,x
-		cmpb #127
-		bhs fail
-		ldab #1
-		bra popit
-fail:		clrb
-popit:
+		tst 3,x
+		bmi fail
+		incb
+fail:		
 		jmp ret2

@@ -1,4 +1,7 @@
-
+;
+;	islower(unsigned char c)
+;		return (c >= 'a') && (c <= 'z');
+;
 		.export _islower
 
 		.code
@@ -8,7 +11,7 @@ _islower:
 		tsx
 		ldab 3,x
 		cmpb #'a'
-		blo fail
+		bcs fail
 		cmpb #'z'
 		bhi fail
 		; Any non zero value is valid

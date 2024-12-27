@@ -16,12 +16,14 @@ tosor0ax:
 ;
 tosoreax:
 	tsx
-	oraa	4,x
 	orab	5,x
-	staa	@tmp
-	stab	@tmp+1
-	ldaa	@sreg
+	pshb
+	oraa	4,x
 	ldab	@sreg+1
-	oraa	2,x
 	orab	3,x
-	jmp	swap32pop4
+	stab	@sreg+1
+	ldab	@sreg
+	orab	2,x
+	stab	@sreg
+	pulb
+	jmp	pop4

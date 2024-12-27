@@ -1,4 +1,3 @@
-
 		.export addeqstatic
 		.export addeqstaticb
 		.export addeqstatic1
@@ -20,7 +19,7 @@ addeqstatic:	addb 1,x
 		rts
 addeqstatic2:	ldab #2
 		bra addeqstaticb
-addeqstatic3:	ldab #2
+addeqstatic3:	ldab #3
 		bra addeqstaticb
-addeqstatic4:	ldab #2
+addeqstatic4:	ldab #4
 		bra addeqstaticb

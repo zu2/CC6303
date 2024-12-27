@@ -1693,7 +1693,7 @@ static void PostInc (ExprDesc* Expr)
         } else {
             /* Fetch the value and save it (since it's the result of the expression) */
             LoadExpr (CF_NONE, Expr);
-            g_save (Flags | CF_FORCECHAR);
+//          g_save (Flags | CF_FORCECHAR);
 
             /* If we have a pointer expression, increment by the size of the type */
             g_inc (Flags | CF_CONST | CF_FORCECHAR, size);
@@ -1702,7 +1702,8 @@ static void PostInc (ExprDesc* Expr)
             Store (Expr, 0);
 
             /* Restore the original value in the primary register */
-            g_restore (Flags | CF_FORCECHAR);
+ //         g_restore (Flags | CF_FORCECHAR);
+            g_dec (Flags | CF_CONST | CF_FORCECHAR, size);
         }
     }
 
@@ -1761,7 +1762,7 @@ static void PostDec (ExprDesc* Expr)
         } else {
             /* Fetch the value and save it (since it's the result of the expression) */
             LoadExpr (CF_NONE, Expr);
-            g_save (Flags | CF_FORCECHAR);
+//          g_save (Flags | CF_FORCECHAR);
 
             g_dec (Flags | CF_CONST | CF_FORCECHAR, size);
 
@@ -1769,7 +1770,8 @@ static void PostDec (ExprDesc* Expr)
             Store (Expr, 0);
 
             /* Restore the original value in the primary register */
-            g_restore (Flags | CF_FORCECHAR);
+//          g_restore (Flags | CF_FORCECHAR);
+            g_inc (Flags | CF_CONST | CF_FORCECHAR, size);
         }
     }
 
@@ -3490,7 +3492,17 @@ static void opeq (const GenDesc* Gen, ExprDesc* Expr, const char* Op)
         }
 
         /* Adjust the types of the operands if needed */
-        Gen->Func (g_typeadjust (flags, TypeOf (Expr2.Type)), 0);
+	if (Gen->Func == g_asr || Gen->Func == g_asl){
+		// For shift operators, the type depends on the lhs
+		unsigned r = TypeOf (Expr2.Type);
+		unsigned f = (flags & ~CF_CONST)|(flags & r & CF_CONST);
+		if ((f & CF_TYPEMASK)!=CF_LONG){
+		    f = (f & ~CF_TYPEMASK)|CF_INT;
+		}
+		Gen->Func (f, 0);
+	}else{
+		Gen->Func (g_typeadjust (flags, TypeOf (Expr2.Type)), 0);
+	}
     }
     Store (Expr, 0);
     ED_MakeRValExpr (Expr);

@@ -7,16 +7,14 @@
 	.code
 
 mulax7:
-	staa @tmp1
 	stab @tmp1+1
-	lslb
+	staa @tmp1
+	lslb		; x2
 	rola
-	lslb
+	lslb		; x4
 	rola
-	addb @tmp1
-	adca @tmp1+1
-	addb @tmp1
-	adca @tmp1+1
-	addb @tmp1
-	adca @tmp1+1
+	lslb		; x8
+	rola
+	subb @tmp1+1	; x7 (x8-x1)
+	sbca @tmp1
 	rts

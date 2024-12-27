@@ -1,32 +1,28 @@
 ;
-;	Another one that's really hard to do nicely
+;	char *strcpy(char *dest, const char *src)
 ;
 
 	.export _strcpy
-
 	.code
 
 _strcpy:
 	tsx
-	ldaa	7,x
-	ldab	8,x
-	staa	@tmp
-	stab	@tmp+1		; destination
-	ldaa	3,x		; length
-	ldab	4,x
-	ldx	5,x		; src
+	ldx	4,x		; dest
+	stx	@tmp
+	tsx
+	ldx	2,x		; src
 copyloop:
-	ldaa	,x
+	ldab	,x
 	inx
 	stx	@tmp2
 	ldx	@tmp
-	staa	,x
+	stab	,x
 	inx
 	stx	@tmp
 	ldx	@tmp2
-	tsta
+	tstb
 	bne copyloop
 	tsx
-	ldaa	7,x
-	ldab	8,x
+	ldab	5,x		; return dest
+	ldaa	4,x
 	jmp	ret4

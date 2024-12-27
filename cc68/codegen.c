@@ -270,8 +270,8 @@ static void AssignD(unsigned short value, int keepc)
             AddCodeLine("ldaa #$%02X", hi);
             AddCodeLine("ldab #$%02X", lo);
         } else {
-            AddCodeLine("ldab #$%02X", hi);
-            AddCodeLine("ldaa #$%02X", lo);
+            AddCodeLine("ldab #$%02X", lo);
+            AddCodeLine("ldaa #$%02X", hi);
         }
         return;
     }
@@ -698,6 +698,7 @@ static int AddXRange(int value, int maxoff, int save_d)
 /* ASR is much harder to shortcut */
 static void AsrD(void)
 {
+printf("; AsrD\n");
     AddCodeLine("asra");
     AddCodeLine("rorb");
 }
@@ -940,7 +941,13 @@ static int GenOffset(unsigned Flags, int Offs, int save_d, int exact)
         }
         AddCodeLine("sts @tmp");
         AssignD(Offs + 1, 0);		/* So it matches a TSX based offset */
-        AddCodeLine("addd @tmp");
+	if (CPU != CPU_6800){
+	    AddCodeLine("addd @tmp");
+	}else{
+	    AddCodeLine("addb @tmp+1");
+	    AddCodeLine("adca @tmp");
+	}
+
         DToX();
         if (save_d) {
             AddCodeLine("pula");
@@ -978,13 +985,13 @@ static int GenOffset(unsigned Flags, int Offs, int save_d, int exact)
     if (Offs + s >= far) {
         if (save_d)
             AddCodeLine("pshb");
-        AddCodeLine("ldab #$FF");
+        AddCodeLine("ldab #255");
         while(Offs >= 255) {
             Offs -= 255;
             AddCodeLine("abx");
         }
         if (exact) {
-            AddCodeLine("ldab #$%02X", Offs + s);
+            AddCodeLine("ldab #255", Offs + s);
             AddCodeLine("abx");
             Offs  = 0;
         }
@@ -1335,7 +1342,7 @@ void g_leave(int voidfunc, unsigned flags, unsigned argsize)
             else if (argsize < 256) {
                 if (!voidfunc)
                     AddCodeLine("pshb");
-                AddCodeLine("ldab #$%02X", argsize);
+                AddCodeLine("ldab #%02X", argsize);
                 AddCodeLine("stab @tmp + 1");
                 if (!voidfunc)
                     AddCodeLine("pulb");
@@ -2271,7 +2278,7 @@ void g_scale (unsigned flags, long val)
 
                 case CF_INT:
                     if (CPU == CPU_6800 && p2 > 2)
-                        AddCodeLine("jsr shlax%d\n", p2);
+                        AddCodeLine("jsr shlax%d", p2);
                     else {
                         while (p2--)
                             AslD();
@@ -2326,9 +2333,14 @@ void g_scale (unsigned flags, long val)
                         LsrDBy(p2);
                     } else  {
                         InvalidateX();
-                        if (p2 == 1)
+                        if (p2 == 1){
+			    AddCodeLine("asra");
+			    AddCodeLine("rola");
+			    AddCodeLine("adcb #0");
+			    AddCodeLine("adca #0");
+printf("; DIV by %d\n",p2);
                             AsrD();
-                        else
+			}else
                             /* There is no asrd */
                             AddCodeLine ("jsr asrax%d", p2);
                     }
@@ -2380,7 +2392,12 @@ void g_addlocal (unsigned flags, int offs)
 
         case CF_INT:
             offs = GenOffset(flags, offs, 1, 0);
-            AddCodeLine ("addd $%02X,x", offs & 0xFF);
+	    if (CPU != CPU_6800){
+                AddCodeLine ("addd $%02X,x", offs & 0xFF);
+	    }else{
+		AddCodeLine ("addb $%02X+1,x", offs & 0xFF);
+		AddCodeLine ("adca $%02X,x", offs & 0xFF);
+	    }
             break;
 
         case CF_LONG:
@@ -2929,7 +2946,12 @@ void g_addaddr_local (unsigned flags attribute ((unused)), int offs)
     NotViaX();		/* For now: can improve on this due to abx */
     
     if (offs > 0 && FramePtr) {
-        AddCodeLine("addd @fp");
+	if (CPU != CPU_6800){
+            AddCodeLine("addd @fp");
+	}else{
+	     AddCodeLine("addb @fp+1");
+	     AddCodeLine("adca @fp");
+	}
         offs += 2;
         if (offs != 0)
             AddDConst(offs);
@@ -3826,8 +3848,16 @@ void g_div (unsigned flags, unsigned long val)
 
     NotViaX();
 
-    if ((flags & CF_CONST) && (p2 = PowerOf2 (val)) >= 0) {
+    if ((flags & CF_CONST) && (p2 = PowerOf2 (val)) >= 0
+    &&  (flags & CF_TYPEMASK)==CF_INT) {
         /* Generate a shift instead */
+	unsigned L = GetLocalLabel();
+	unsigned v = val-1;
+	AddCodeLine ("tsta");
+	AddCodeLine ("bpl %s", LocalLabelName (L));
+	AddCodeLine ("addb #<%04x",v);
+	AddCodeLine ("adca #>%04x",v);
+    	g_defcodelabel (L);
         g_asr (flags, p2);
     } else {
         /* Generate a division */
@@ -4168,9 +4198,9 @@ void g_asr (unsigned flags, unsigned long val)
                     unsigned L = GetLocalLabel();
                     AddCodeLine ("tab");
                     AddCodeLine ("clra");
-                    AddCodeLine ("cmpb #$80");   /* Sign bit into carry */
-                    AddCodeLine ("bcc %s", LocalLabelName (L));
-                    AddCodeLine ("coma");        /* Make $FF */
+                    AddCodeLine ("asrb");
+                    AddCodeLine ("rolb");
+                    AddCodeLine ("sbca #0");
                     g_defcodelabel (L);
                     val -= 8;
                 }
@@ -4761,7 +4791,6 @@ void g_lt (unsigned flags, unsigned long val)
         "tosltax", "tosultax", "toslteax", "tosulteax"
     };
 
-//    AddCodeLine(";g_lt");
     NotViaX();
     /* If the right hand side is const, the lhs is not on stack but still
     ** in the primary register.

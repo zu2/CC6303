@@ -1,4 +1,6 @@
-
+;
+;	size_t strlen(const char *str)
+;
 
 	.code
 	.export _strlen
@@ -8,13 +10,12 @@
 _strlen:
 	tsx
 	ldx 2,x
-	clra
-	clrb
-cl:	tst ,x
-	beq to_rts
-	inx
-	addb #1
+	dex
+	ldab #$ff
+	tba
+cl:	addb #1
 	adca #0
-	bra cl
-to_rts:
+	inx
+	tst ,x
+	bne cl
 	jmp ret2

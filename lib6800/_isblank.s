@@ -1,4 +1,7 @@
-
+;
+;	isblank(unsigned char c)
+;		return (c == 0x20) || (c == 0x09);
+;
 		.export _isblank
 
 		.code

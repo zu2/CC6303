@@ -4,8 +4,8 @@
 
 storetos:
 		tsx
-		staa $02,x
-		stab $03,x
+		stab 3,x
+		staa 2,x
 		inx
 		inx
 		rts

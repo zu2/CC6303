@@ -14,14 +14,12 @@ tosaddeax:
 	tsx
 	addb	5,x
 	adca	4,x
-	staa	@tmp
-	stab	@tmp+1
+	pshb
 	ldab	3,x
 	adcb	@sreg+1
-	ldaa	2,x
-	adca	@sreg
-	staa	@sreg
 	stab	@sreg+1
-	ldaa	@tmp
-	ldab	@tmp+1
+	ldab	2,x
+	adcb	@sreg
+	stab	@sreg
+	pulb
 	jmp	pop4

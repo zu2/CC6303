@@ -8,15 +8,15 @@ _isalnum:
 		tsx
 		ldab 3,x
 		cmpb #'0'
-		bls fail
+		bcs fail
 		cmpb #'9'
-		ble good
+		bls good
 		cmpb #'A'
-		bls fail
+		bcs fail
 		cmpb #'Z'
-		ble good
+		bls good
 		cmpb #'a'
-		bls fail
+		bcs fail
 		cmpb #'z'
 		bls good
 fail:		clrb

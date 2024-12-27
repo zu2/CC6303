@@ -20,9 +20,9 @@ fixfp:
 		inx
 		stx  @fp
 		; No ABX ...
-		ldaa @fp
+		clra
 		addb @fp+1
-		adca #0
+		adca @fp
 		stab @fp+1
 		staa @fp
 		rts

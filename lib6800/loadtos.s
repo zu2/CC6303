@@ -7,16 +7,16 @@
 
 loadtos:
 	tsx
-	ldab $03,x
-	ldaa $02,x
+	ldab 3,x
+	ldaa 2,x
 	inx			; so X is as the caller expects it
 	inx
 	rts
 
 savetos:
 	tsx
-	stab $03,x
-	staa $02,x
+	stab 3,x
+	staa 2,x
 	inx			; so X is as the caller expects it
 	inx
 	rts
@@ -25,10 +25,10 @@ addtotosb:
 	clra
 addtotos:
 	tsx
-	addb $03,x
-	adca $02,x
-	stab $03,x
-	staa $02,x
+	addb 3,x
+	adca 2,x
+	stab 3,x
+	staa 2,x
 	inx
 	inx
 	rts

@@ -4,14 +4,13 @@
 
 	.code
 ;
-;	TODO - could we do this better with neg/com and add ?
+;	D = TOS - D
 ;
 tossubax:
-	staa @tmp
-	stab @tmp+1
+	nega		; negate D
+	negb
+	sbca #0
 	tsx
-	ldaa 2,x	; top of maths stack as seen by caller
-	ldab 3,x
-	subb @tmp+1
-	sbca @tmp
+	addb 3,x	; top of maths stack as seen by caller
+	adca 2,x
 	jmp pop2

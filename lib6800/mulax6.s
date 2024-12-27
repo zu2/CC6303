@@ -1,5 +1,5 @@
 ;
-;	Multiply D by 3
+;	Multiply D by 6
 ;
 	.export mulax6
 

@@ -7,19 +7,19 @@
 	.code
 
 tosshrax:
+	tstb
+	beq retdone
 	cmpb #15		; More bits are meaningless
 	bgt ret0
 	tsx
 loop:
-	tstb
-	beq retdone
 	lsr 2,x
 	ror 3,x
 	decb
-	bra loop
+	bne loop
+retdone:
+	jmp pop2get
 ret0:
 	clra
 	clrb
 	jmp pop2
-retdone:
-	jmp pop2get

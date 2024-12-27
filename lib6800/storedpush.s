@@ -6,13 +6,22 @@
 ;	Store D and push it
 ;
 storedpush:
-	staa 2,x		; save D at top of stack (as seen by caller)
-	stab 3,x
-pshtop:
 	tsx
-	ldx ,x			; get return address
+	ldx 0,x			; get return address
 	stx @tmp		; patch it in
 	tsx
-	ldx 2,x			; get saved D
-	stx ,x			; overwrite return address
+	stab 3,x		; save D at top of stack (as seen by caller)
+	staa 2,x
+	stab 1,x		; overwrite return address
+	staa 0,x
+	jmp jmptmp
+pshtop:
+	tsx
+	ldx 0,x			; get return address
+	stx @tmp		; patch it in
+	tsx
+	ldab 3,x		; overwrite return address
+	stab 1,x
+	ldaa 2,x
+	staa 0,x
 	jmp jmptmp		; to caller without adjusting stack

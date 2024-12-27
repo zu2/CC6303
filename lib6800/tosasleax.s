@@ -11,11 +11,11 @@
 ;
 tosasleax:	
 tosshleax:
+	tsx
+	tstb
+	beq	noshift
 	cmpb	#32
 	bcc	ret0
-	tstb
-	beq noshift
-	tsx
 loop:
 	asl	5,x
 	rol	4,x
@@ -23,18 +23,28 @@ loop:
 	rol	2,x
 	decb
 	bne loop
-	ldaa	2,x
-	ldab	3,x
 	; Get the value
-	staa	@sreg
+	ldab	3,x
 	stab	@sreg+1
-	ldaa	4,x
+	ldaa	2,x
+	staa	@sreg
 	ldab	5,x
-noshift:
+	ldaa	4,x
 	jmp pop4
 ret0:
-	clra
 	clrb
-	staa	@sreg
+	clra
 	stab	@sreg+1
-	bra	noshift
+	staa	@sreg
+	jmp	pop4
+noshift:
+	ldx	0,x
+	ins
+	ins
+	pula
+	staa	@sreg
+	pulb
+	stab	@sreg+1
+	pula
+	pulb
+	jmp	0,x

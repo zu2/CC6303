@@ -7,13 +7,12 @@
 	.export swapstk
 
 swapstk:
-	tsx		; This 4 instruction sequence
-	ldx ,x		; is effectively pulx
-	ins
-	ins
-	stx @tmp
-	psha
-	pshb
+	tsx
+	ldx 2,x		; get TOS
+	stx @tmp	; and save it
+	tsx
+	stab 3,x	; store D into TOS
+	staa 2,x
+	ldab @tmp+1	; get old TOS
 	ldaa @tmp
-	ldab @tmp+1
 	rts

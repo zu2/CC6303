@@ -10,8 +10,8 @@
 ;
 _longjmp:
 	tsx
-	ldaa	2,x		; retval
-	ldab	3,x
+	ldab	3,x		; retval
+	ldaa	2,x
 	bne	retok
 	tsta
 	bne	retok

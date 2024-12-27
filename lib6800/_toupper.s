@@ -1,14 +1,18 @@
-
+;
+;	int toupper(int c)
+;		return (c>='a' && c<='z')? c-'a'+'A': c;
+;
+;
 		.export _toupper
 
 		.code
 
 _toupper:
-		tsx
 		clra
+		tsx
 		ldab 3,x
 		cmpb #'a'
-		blt done
+		bcs done
 		cmpb #'z'
 		bhi done
 		subb #$20

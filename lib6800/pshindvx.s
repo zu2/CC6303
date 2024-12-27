@@ -16,8 +16,8 @@ pshindvx:
 	pulb
 	staa @tmp
 	stab @tmp+1
-	ldab $01,x
-	ldaa $00,x
+	ldab 1,x
+	ldaa 0,x
 	pshb
 	psha
 	jmp @jmptmp
@@ -26,8 +26,8 @@ pshindvx1:
 	pulb
 	staa @tmp
 	stab @tmp+1
-	ldab $02,x
-	ldaa $01,x
+	ldab 2,x
+	ldaa 1,x
 	pshb
 	psha
 	jmp @jmptmp
@@ -36,8 +36,8 @@ pshindvx2:
 	pulb
 	staa @tmp
 	stab @tmp+1
-	ldab $03,x
-	ldaa $02,x
+	ldab 3,x
+	ldaa 2,x
 	pshb
 	psha
 	jmp @jmptmp
@@ -46,8 +46,8 @@ pshindvx3:
 	pulb
 	staa @tmp
 	stab @tmp+1
-	ldab $04,x
-	ldaa $03,x
+	ldab 4,x
+	ldaa 3,x
 	pshb
 	psha
 	jmp @jmptmp
@@ -56,8 +56,8 @@ pshindvx4:
 	pulb
 	staa @tmp
 	stab @tmp+1
-	ldab $05,x
-	ldaa $04,x
+	ldab 5,x
+	ldaa 4,x
 	pshb
 	psha
 	jmp @jmptmp
@@ -66,8 +66,8 @@ pshindvx5:
 	pulb
 	staa @tmp
 	stab @tmp+1
-	ldab $06,x
-	ldaa $05,x
+	ldab 6,x
+	ldaa 5,x
 	pshb
 	psha
 	jmp @jmptmp
@@ -76,8 +76,8 @@ pshindvx6:
 	pulb
 	staa @tmp
 	stab @tmp+1
-	ldab $07,x
-	ldaa $06,x
+	ldab 7,x
+	ldaa 6,x
 	pshb
 	psha
 	jmp @jmptmp
@@ -86,8 +86,8 @@ pshindvx7:
 	pulb
 	staa @tmp
 	stab @tmp+1
-	ldab $08,x
-	ldaa $07,x
+	ldab 8,x
+	ldaa 7,x
 	pshb
 	psha
 	jmp @jmptmp

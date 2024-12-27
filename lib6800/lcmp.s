@@ -23,13 +23,13 @@ donec:
 
 byte2:
 	ldab 5,x
-	sbcb @sreg+1
+	subb @sreg+1
 	bne done
 	; The high word matched, so compare the low word the same way
 	ldaa 6,x
-	sbca @tmp
+	suba @tmp
 	bne done
 	ldab 7,x
-	sbcb @tmp+1
+	subb @tmp+1
 done:
 	rts

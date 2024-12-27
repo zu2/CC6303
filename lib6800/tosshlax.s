@@ -12,28 +12,27 @@
 tosaslax:				; negative shift is not defined
 					; anyway
 tosshlax:
+	tsx
 	clra				; shift of > 15 is meaningless
 	cmpb #15
 	bgt shiftout
-	tsx
-shloop:
 	tstb
 	beq shiftdone
+shloop:
 	lsl 3,x
 	rol 2,x
 	decb
-	bra shloop
-shiftout:
-	clra
-	clrb
-	staa 2,x
-	stab 3,x
+	bne shloop
 shiftdone:
 pop2get:
 	tsx				; no pulx on original 6800
-	ldx ,x				; so do it by hand
+	ldx 0,x				; so do it by hand
 	ins
 	ins
 	pula
 	pulb
-	jmp ,x
+	jmp 0,x
+shiftout:
+	clr 3,x
+	clr 2,x
+	bra shiftdone

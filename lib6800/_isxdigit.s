@@ -1,4 +1,10 @@
-
+;
+;	isxdigit(unsigned char c)
+;		return	(c>='0' && c<='9')
+;		||	(c>='A' && c<='F')
+;		||	(c>='a' && c<='f');
+;
+;
 		.export _isxdigit
 
 		.code
@@ -8,15 +14,15 @@ _isxdigit:
 		tsx
 		ldab 3,x
 		cmpb #'0'
-		bls fail
+		bcs fail
 		cmpb #'9'
-		ble good
+		bls good
 		cmpb #'A'
-		bls fail
+		bcs fail
 		cmpb #'F'
-		ble good
+		bls good
 		cmpb #'a'
-		bls fail
+		bcs fail
 		cmpb #'f'
 		bls good
 fail:		clrb

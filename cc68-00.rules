@@ -2225,6 +2225,7 @@ L%3
 	ldab #%2
 	pshb
 	psha
+	tsx
 
 #
 #	One of the few cases we can easily work via X

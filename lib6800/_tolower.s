@@ -1,14 +1,18 @@
-
+;
+;	int tolower(int c)
+;		return (c>='A' && c<='Z')? c-'A'+'a': c;
+;
+;
 		.export _tolower
 
 		.code
 
 _tolower:
-		tsx
 		clra
+		tsx
 		ldab 3,x
 		cmpb #'A'
-		blt done
+		bcs done
 		cmpb #'Z'
 		bhi done
 		addb #$20

@@ -1,4 +1,7 @@
-
+;
+;	isdigit(unsigned char c)
+;		return (c>=0x21) && (c<=0x7e);
+;
 		.export _isgraph
 
 		.code
@@ -10,7 +13,7 @@ _isgraph:
 		cmpb #' '
 		bls fail
 		cmpb #127
-		bhs fail
+		bcc fail
 		; Any non zero value is valid
 		jmp ret2
 fail:		clrb

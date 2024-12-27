@@ -1,18 +1,22 @@
-
+;
+;	isspace(unsigned char c)
+;		return	(c==' ')  || (c=='\f') || (c=='\n') || (c=='\r')
+;		||	(c=='\t') || (c=='\v');
+;
+;	->	return (c==' ') || (c>='\t' && c<='\r');
+;
 		.export _isspace
-
 		.code
-
 _isspace:
 		clra
 		tsx
 		ldab 3,x
-		cmpb #' '
+		cmpb #$20
 		beq good
-		cmpb #9		; tab
-		bls fail
-		cmpb #13	; line feed
-		ble good
+		cmpb #$09	; tab
+		bcs fail
+		cmpb #$0D	; CR
+		bls good
 fail:		clrb
 		; any non zero is 'good
 good:		jmp ret2
