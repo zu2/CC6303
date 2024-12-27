@@ -698,7 +698,6 @@ static int AddXRange(int value, int maxoff, int save_d)
 /* ASR is much harder to shortcut */
 static void AsrD(void)
 {
-printf("; AsrD\n");
     AddCodeLine("asra");
     AddCodeLine("rorb");
 }
@@ -869,7 +868,7 @@ static int GenOffset(unsigned Flags, int Offs, int save_d, int exact)
        arguments not locals */
     if (Offs > 0 && FramePtr) {
         InvalidateX();
-        AddCodeLine(";Genoffset %u %d %d %d\n",
+        AddCodeLine(";Genoffset %u %d %d %d",
             Flags, Offs, save_d, exact);
         Offs += 2;	/* FP is from SP but also have stacked fp */
         if (Offs < 256 - s) {
@@ -1671,7 +1670,7 @@ void g_leasp (unsigned Flags, int Offs)
 {
     /* FramePtr indicates a Varargs function where arguments are relative
        to fp */
-    AddCodeLine(";leasp %d %d\n", FramePtr, Offs);
+    AddCodeLine(";leasp %d %d", FramePtr, Offs);
     if (FramePtr && Offs > 0) {
         /* Because of the frame pointer */
         Offs += 2;
@@ -1692,7 +1691,7 @@ void g_leasp (unsigned Flags, int Offs)
     /* Calculate the offset relative to sp */
     Offs += StackPtr;
 
-    AddCodeLine(";+leasp %d %d\n", FramePtr, Offs);
+    AddCodeLine(";+leasp %d %d", FramePtr, Offs);
 
     if (!(Flags & CF_USINGX)) {
         if (CPU == CPU_6800) {
@@ -2338,7 +2337,6 @@ void g_scale (unsigned flags, long val)
 			    AddCodeLine("rola");
 			    AddCodeLine("adcb #0");
 			    AddCodeLine("adca #0");
-printf("; DIV by %d\n",p2);
                             AsrD();
 			}else
                             /* There is no asrd */
@@ -5646,7 +5644,7 @@ void g_save_regvar(int Offset, int Reg, unsigned Size)
 
 void g_restore_regvar(int Offset, int Reg, unsigned Size)
 {
-    AddCodeLine(";offset %d\n", Offset);
+    AddCodeLine(";offset %d", Offset);
     PullX(1);
     AddCodeLine("stx @reg+%u", Reg);
     pop(CF_INT);
