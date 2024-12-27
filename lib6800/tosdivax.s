@@ -25,16 +25,20 @@ tosmod2:
 	jmp pop2
 negmod:
 	tsx
+	com 3,x
 	com 2,x
-	neg 3,x
-	bne negmod2
-	inc 2,x
-negmod2:
 	ldx 2,x
+	inx
 	jsr div16x16
 negdret:
 	bsr negd
 	jmp pop2
+
+negd:
+	nega
+	negb
+	sbca #0
+	rts
 	
 tosdivax:
 	tsx
@@ -46,12 +50,10 @@ posdiv1:
 	bpl posdiv3
 	com @tmp4
 	tsx
+	com 3,x
 	com 2,x
-	neg 3,x
-	bne negdiv2
-	inc 2,x
-negdiv2:
 	ldx 2,x
+	inx
 posdiv3:
 	jsr div16x16		; do the unsigned divide
 				; X = quotient, D = remainder
@@ -59,11 +61,7 @@ posdiv3:
 	ldab @tmp+1
 	ldaa @tmp
 	tst @tmp4
-	bmi negdret
+	bpl ret
+	bsr negd
+ret:
 	jmp pop2
-negd:
-	nega
-	negb
-	sbca #0
-ispos:
-	rts

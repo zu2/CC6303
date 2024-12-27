@@ -31,7 +31,7 @@ nextbit:
 noadd:
 		dec @tmp
 		bne nextbit
-		; For a 16x16 to 32bit just store 3-4,x into sreg
+		; For a 16x16 to 32bit just store 4-5,x into sreg
 		ins
 		ins
 		jmp pop2
