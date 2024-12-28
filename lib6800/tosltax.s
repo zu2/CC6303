@@ -6,8 +6,13 @@
 		.code
 tosltax:
 		tsx
-		cmpa 2,x
-		bne noteq
-		cmpb 3,x
-noteq:		jsr boolgt		; as we compare backwardss
-		jmp pop2flags
+		subb 3,x
+		sbca 2,x
+		bgt true
+		blt false
+		tstb
+		bne true
+false:
+		jmp false2
+true:
+		jmp true2

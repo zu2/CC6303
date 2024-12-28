@@ -7,7 +7,10 @@
 toseqax:
 		tsx
 		cmpb 3,x
-		bne noteq
+		bne false
 		cmpa 2,x
-noteq:		jsr booleq
-		jmp pop2flags
+		bne false
+true:
+		jmp true2
+false:
+		jmp false2

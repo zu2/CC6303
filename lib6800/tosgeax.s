@@ -6,8 +6,13 @@
 		.code
 tosgeax:
 		tsx
-		cmpa 2,x
-		bne noteq
-		cmpb 3,x
-noteq:		jsr boolle		; we did the comparison backwards
-		jmp pop2flags
+		subb 3,x
+		sbca 2,x
+		blt true
+		bgt false
+		tstb
+		bne false
+true:
+		jmp true2
+false:
+		jmp false2

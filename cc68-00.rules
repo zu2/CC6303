@@ -123,7 +123,7 @@
 =
 	clra
 	ldab #1
-	jne %1
+	jmp %1
 
 # Some trivial optimizations for clra/clrb cases
 	clra
@@ -135,7 +135,7 @@
 	clra
 	ldab #1
 	stab %1
-	decb
+	clrb
 
 	clra
 	clrb
@@ -158,7 +158,7 @@
 	ldab #$01
 	staa %1
 	stab %1+1
-	decb
+	clrb
 
 	clra
 	clrb
@@ -198,7 +198,7 @@
 	staa %1
 	stab %2
 	;invalid DP
-	decb
+	clrb
 
 	clra
 	clrb
@@ -240,7 +240,7 @@
 	staa %1
 	stab %2
 	;invalid XDP
-	decb
+	clrb
 
 	clra
 	clrb
@@ -529,8 +529,8 @@ L%3
 =
 	ldaa %3
 	ldab %4
-	subb %4
-	sbca %3
+	subb %2
+	sbca %1
 
 	ldaa %1
 	ldab %2
@@ -560,10 +560,10 @@ L%3
 	inx
 	inx
 =
-	ldaa %1
-	ldab %2
-	subb %4
-	sbca %3
+	ldaa %3
+	ldab %4
+	subb %2
+	sbca %1
 
 	ldaa %1
 	ldab %1+1
@@ -596,8 +596,7 @@ L%3
 	ldaa %2
 	ldab %3
 =
-	clrb
-	stab %1
+	clr %1
 	tsx
 	ldaa %2
 	ldab %3
@@ -608,8 +607,7 @@ L%3
 	ldaa %2
 	ldab %3
 =
-	clrb
-	stab %1
+	clr %1
 	ldaa %2
 	ldab %3
 
@@ -619,8 +617,7 @@ L%3
 	ldaa %2
 	ldab %3
 =
-	clrb
-	stab %1
+	clr %1
 	ldaa %2
 	ldab %3
 
@@ -684,7 +681,7 @@ L%3
 	clra
 	ldab %4
 	suba %2
-	sbca #0
+	sbca %1
 
 
 # Optimize common dtox patterns
@@ -1360,7 +1357,7 @@ L%3
 =
 	ldx %1,x
 	ldab #%2
-	clr %2,x
+	clr %3,x
 	stab %3+1,x
 	;invalid DP
 
@@ -1378,7 +1375,7 @@ L%3
 =
 	ldx _%1
 	ldab #%2
-	clr %2,x
+	clr %3,x
 	stab %3+1,x
 	;invalid DP
 
@@ -1396,7 +1393,7 @@ L%3
 =
 	ldx %1,x
 	ldaa #%2
-	staa #%3,x
+	staa %3,x
 	clr %3+1,x
 	;invalid DP
 
@@ -1414,7 +1411,7 @@ L%3
 =
 	ldx _%1
 	ldaa #%2
-	staa #%3,x
+	staa %3,x
 	clr %3+1,x
 	;invalid DP
 
@@ -1602,8 +1599,8 @@ L%3
 =
 	ldx %1,x
 	ldab #%2
-	clr %2,x
 	clra
+	staa %3,x
 	stab %3+1,x
 
 	ldaa %1,x
@@ -1618,9 +1615,9 @@ L%3
 =
 	ldx %1,x
 	ldaa #%2
-	staa #%3,x
 	clrb
-	clr %3+1,x
+	staa %3,x
+	stab %3+1,x
 
 # And for static
 	ldaa _%1
@@ -1634,9 +1631,9 @@ L%3
 	stab %3+1,x
 =
 	ldx _%1
-	ldab #%2
-	clr %2,x
 	clra
+	ldab #%2
+	staa %3,x
 	stab %3+1,x
 
 	ldaa _%1
@@ -1649,9 +1646,9 @@ L%3
 	stab %3,x
 =
 	ldx _%1
-	ldab #%2
-	clr %2,x
 	clra
+	ldab #%2
+	staa %3,x
 	stab %3+1,x
 
 	ldaa _%1
@@ -1666,9 +1663,9 @@ L%3
 =
 	ldx _%1
 	ldaa #%2
-	staa #%3,x
 	clrb
-	clr %3+1,x
+	staa %3,x
+	stab %3+1,x
 
 	ldaa _%1
 	ldab _%1+1
@@ -1681,10 +1678,10 @@ L%3
 	stab %2+1,x
 =
 	ldx _%1
-	clr %2,x
-	clr %2+1,x
 	clra
 	clrb
+	staa %2,x
+	stab %2+1,x
 
 	ldaa _%1
 	ldab _%1+1
@@ -1696,9 +1693,9 @@ L%3
 	stab %2,x
 =
 	ldx _%1
-	clr %2,x
 	clra
 	clrb
+	stab %2,x
 
 # Seems to be failing FIXME
 	ldaa %1,x
@@ -1712,10 +1709,10 @@ L%3
 	stab %2+1,x
 =
 	ldx %1,x
-	clr %2,x
-	clr %2+1,x
 	clra
 	clrb
+	staa %2,x
+	stab %2+1,x
 
 	ldaa %1,x
 	ldab %1+1,x
@@ -1727,9 +1724,9 @@ L%3
 	stab %2,x
 =
 	ldx %1,x
-	clr %2,x
 	clra
 	clrb
+	stab %2,x
 
 # The very common 'push top of stack' forms (being careful that X may not be
 # S)
@@ -2173,8 +2170,8 @@ L%3
 	ldaa %3
 =
 	ldab #%1
-	stab _%2
-	clr _%2+1
+	stab _%2+1
+	clr _%2
 	ldaa %3
 
 #
