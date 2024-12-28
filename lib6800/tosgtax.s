@@ -8,7 +8,7 @@ tosgtax:
 		tsx
 		subb 3,x
 		sbca 2,x
-		ble false
+		bge false
 true:
 		jmp true2
 false:
