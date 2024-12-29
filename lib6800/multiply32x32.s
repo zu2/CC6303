@@ -22,23 +22,14 @@ tosumuleax:
 		;	Now work bitwise through it
 		;
 		ldaa @tmp+1
-		beq zero1	; Speed up zero bytes (it's common for a 32 x 32 to have several 0 bytes)
 		bsr bits8
-zero1:
 		ldaa @tmp
-		beq zero2
 		bsr bits8
-zero2:
 		ldaa @sreg+1
-		beq zero3
 		bsr bits8
-zero3:
 		ldaa @sreg
-		beq zero4
 		bsr bits8
-		;
 		;	Now copy out the data
-zero4:
 		pula
 		staa @sreg
 		pula
@@ -51,7 +42,9 @@ zero4:
 ;	Process an 8x32 slice of the multiply. We could optimize this if we un-inlined it as we can do 32bit, 24bit, 16bit, 8bit
 ;	because we know there are zeros at the end.
 ;
-bits8:		ldab #8
+bits8:
+		beq shift8
+		ldab #8
 		stab @tmp2
 next8:
 		lsra
@@ -76,4 +69,13 @@ noadd:
 		rol 6,x
 		dec @tmp2
 		bne next8
+		rts
+shift8:
+		ldab 7,x
+		stab 6,x
+		ldab 8,x
+		stab 7,x
+		ldab 9,x
+		stab 8,x
+		clr  9,x
 		rts
