@@ -29,12 +29,12 @@ div16x16:
 	; TODO - should be we spot div by 0 and trap out ?
 	staa @tmp1		; divisor
 	stab @tmp1+1
-	clra
-	clrb
 	stx @tmp		; dividend
 	ldx #16			; bit count
+	clra
+	clrb
 loop:
-	asl @tmp+1		; shift dividend
+	rol @tmp+1		; shift dividend
 	rol @tmp
 	rolb			; shift remainder
 	rola
@@ -43,10 +43,12 @@ loop:
 	bcc skip
 	addb @tmp1+1
 	adca @tmp1
-	inc @tmp+1		; set low bit
+	sec			; Changing inc to sec saves 4 cycles per loop.
 skip:
 	dex
 	bne loop
+	rol @tmp+1		; Carry from last loop was not saved yet. Save it.
+	rol @tmp
 	; When calculating the quotient, the meaning of the bits is inverted.
 	; Finally, we correct it with com. This saves 6*(16-2)=84 cycles.
 	com @tmp+1
