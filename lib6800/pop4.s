@@ -5,6 +5,8 @@
 	.export tpop4
 	.export swap32pop4
 	.export pop4flags
+	.export true4
+	.export false4
 
 	.code
 
@@ -25,6 +27,13 @@ pop4h:
 	ins
 	ins
 	jmp ,x
+false4:
+	clra
+	clrb
+	bra pop4flags
+true4:
+	clra
+	ldab #1
 pop4flags:
 	tsx
 	ldx ,x

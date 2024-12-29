@@ -1,6 +1,8 @@
 ;
 ;	Compare top of stack with D
 ;
+;	TOS <= D ?
+;
 
 		.export tosugeax
 		.code
@@ -9,5 +11,7 @@ tosugeax:
 		cmpa 2,x
 		bne noteq
 		cmpb 3,x
-noteq:		jsr boolule		; we did the comparison backwards
-		jmp pop2flags
+noteq:
+		bls ret1
+		jmp false2
+ret1:		jmp true2

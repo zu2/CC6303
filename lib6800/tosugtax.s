@@ -11,6 +11,7 @@ tosugtax:
 		cmpa 2,x
 		bne noteq
 		cmpb 3,x
-noteq:		jsr boolult		; we did the comparison backwards
-		jmp pop2flags
-
+noteq:		
+		bcs ret1
+		jmp false2
+ret1:		jmp true2

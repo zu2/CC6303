@@ -402,11 +402,8 @@ static void SubDConst(int value)
 static void SubDConstCompare(int value)
 {
     if (CPU == CPU_6800) {
-        unsigned L = GetLocalLabel();
-        AddCodeLine("cmpa #$%02X", (value >> 8) & 0xFF);
-        AddCodeLine("bne %s", LocalLabelName(L));
-        AddCodeLine("cmpb #$%02X", value & 0xFF);
-        g_defcodelabel(L);
+        AddCodeLine("subb #$%02X", value & 0xFF);
+        AddCodeLine("sbca #$%02X", (value >> 8) & 0xFF);
     } else {
         if (value == 0)	/* Valid as we may be trying to set flags */
             AddCodeLine("subd @zero");
@@ -1339,10 +1336,10 @@ void g_leave(int voidfunc, unsigned flags, unsigned argsize)
                and cleaner that way */
             if (argsize <= 12)	/* usual case */
                 AddCodeLine("jmp ret%d", argsize);
-            else if (argsize < 256) {
+            else if (argsize < 254) {
                 if (!voidfunc)
                     AddCodeLine("pshb");
-                AddCodeLine("ldab #%02X", argsize);
+                AddCodeLine("ldab #$%02X", argsize+2);	/* 2 for return address */
                 AddCodeLine("stab @tmp + 1");
                 if (!voidfunc)
                     AddCodeLine("pulb");
@@ -1350,9 +1347,9 @@ void g_leave(int voidfunc, unsigned flags, unsigned argsize)
             } else {	/* Insane cases */
                 if (!voidfunc)
                     AddCodeLine("pshb");
-                AddCodeLine("ldab #$%02X", argsize >> 8);
+                AddCodeLine("ldab #<$%02X", argsize-2);
                 AddCodeLine("stab @tmp");
-                AddCodeLine("ldab #$%02X", argsize);
+                AddCodeLine("ldab #>$%02X", argsize-2);
                 AddCodeLine("stab @tmp + 1");
                 if (!voidfunc)
                     AddCodeLine("pulb");
@@ -2113,11 +2110,9 @@ void g_reglong (unsigned Flags)
                 /* Conversion is from char */
                 AddCodeLine("clra");
                 if ((Flags & CF_UNSIGNED) == 0) {
-                    L = GetLocalLabel();
                     AddCodeLine ("asrb");
                     AddCodeLine ("rolb");
                     AddCodeLine ("sbca #0");
-                    g_defcodelabel (L);
                 }
                 AddCodeLine("staa @sreg+1");
                 AddCodeLine("staa @sreg");
@@ -3081,11 +3076,8 @@ void g_cmp (unsigned flags, unsigned long val)
 
         case CF_INT:
             /* No cmpd */
-            L = GetLocalLabel();
-            AddCodeLine ("cmpb #$%02X", (unsigned char)val);
-            AddCodeLine ("bne %s", LocalLabelName (L));
-            AddCodeLine ("cmpa #$%02X", (unsigned char)(val >> 8));
-            g_defcodelabel (L);
+            AddCodeLine ("subb #$%02X", (unsigned char)val);
+            AddCodeLine ("sbca #$%02X", (unsigned char)(val >> 8));
             break;
 
         case CF_LONG:
@@ -3233,7 +3225,7 @@ void g_push (unsigned flags, unsigned long val)
                         case 1:
                             AddCodeLine("ldaa #1");
                             AddCodeLine("psha");
-                            AddCodeLine("deca");
+                            AddCodeLine("clra");
                             AddCodeLine("psha");
                             AddCodeLine("psha");
                             AddCodeLine("psha");
@@ -4211,13 +4203,11 @@ void g_asr (unsigned flags, unsigned long val)
                 }
                 val &= 0x0F;
                 if (val >= 8) {
-                    unsigned L = GetLocalLabel();
                     AddCodeLine ("tab");
                     AddCodeLine ("clra");
                     AddCodeLine ("asrb");
                     AddCodeLine ("rolb");
-                    AddCodeLine ("sbca #0");
-                    g_defcodelabel (L);
+                    AddCodeLine ("suba #0");
                     val -= 8;
                 }
                 if (val > 2) {
@@ -4665,10 +4655,10 @@ void g_eq (unsigned flags, unsigned long val)
             case CF_CHAR:
                 if (flags & CF_FORCECHAR) {
                     if (val)
-                        AddCodeLine ("cmpb #$%02X", (unsigned char)val);
+                        AddCodeLine ("subb #$%02X", (unsigned char)val);
                     else
                         AddCodeLine ("tstb");
-                    AddCodeLine ("jsr booleq");
+                    AddCodeLine ("jsr booleqc");
                     return;
                 }
                 /* FALLTHROUGH */
@@ -4697,9 +4687,9 @@ void g_eq (unsigned flags, unsigned long val)
         case CF_CHAR:
             if (flags & CF_FORCECHAR) {
                 offs = GenTSXByte(1);
-                AddCodeLine ("cmpb $%02X,x", offs);
+                AddCodeLine ("subb $%02X,x", offs);
                 AddCodeLine("ins");
-                AddCodeLine ("jsr booleq");
+                AddCodeLine ("jsr booleqc");
                 pop(flags);
                 return;
             }
@@ -4743,10 +4733,10 @@ void g_ne (unsigned flags, unsigned long val)
             case CF_CHAR:
                 if (flags & CF_FORCECHAR) {
                     if (val)
-                        AddCodeLine ("cmpb #$%02X", (unsigned char)val);
+                        AddCodeLine ("subb #$%02X", (unsigned char)val);
                     else
                         AddCodeLine ("tstb");
-                    AddCodeLine ("jsr boolne");
+                    AddCodeLine ("jsr boolnec");
                     return;
                 }
                 /* FALLTHROUGH */
@@ -4776,9 +4766,9 @@ void g_ne (unsigned flags, unsigned long val)
         case CF_CHAR:
             if (flags & CF_FORCECHAR) {
                 offs = GenTSXByte(1);
-                AddCodeLine ("cmpb $%02X,x", offs);
+                AddCodeLine ("subb $%02X,x", offs);
                 AddCodeLine ("ins");
-                AddCodeLine ("jsr boolne");
+                AddCodeLine ("jsr boolnec");
                 pop(flags);
                 return;
             }
@@ -4832,7 +4822,7 @@ void g_lt (unsigned flags, unsigned long val)
                 case CF_CHAR:
                     if (flags & CF_FORCECHAR) {
                         AddCodeLine ("cmpb #$%02X", (unsigned char)val);
-                        AddCodeLine ("jsr boolult");
+                        AddCodeLine ("jsr boolultc");
                         return;
                     }
                     /* FALLTHROUGH */
@@ -4898,7 +4888,7 @@ void g_lt (unsigned flags, unsigned long val)
                 case CF_CHAR:
                     if (flags & CF_FORCECHAR) {
                         AddCodeLine ("subb #$%02X", (unsigned int)val);
-                        AddCodeLine ("jsr boollt");
+                        AddCodeLine ("jsr boolltc");
                         return;
                     }
                     /* FALLTHROUGH */
@@ -4938,9 +4928,9 @@ void g_lt (unsigned flags, unsigned long val)
                     AddCodeLine("sba");
                     AddCodeLine("tba");
                     if (flags & CF_UNSIGNED)
-                        AddCodeLine ("jsr boolult");
+                        AddCodeLine ("jsr boolultc");
                     else
-                        AddCodeLine ("jsr boollt");
+                        AddCodeLine ("jsr boolltc");
                     pop (flags);
                     return;
                 }
@@ -5085,9 +5075,9 @@ void g_le (unsigned flags, unsigned long val)
                     AddCodeLine("sba");
                     AddCodeLine("tba");
                     if (flags & CF_UNSIGNED)
-                        AddCodeLine ("jsr boolule");
+                        AddCodeLine ("jsr boolulec");
                     else
-                        AddCodeLine ("jsr boolle");
+                        AddCodeLine ("jsr boollec");
                     pop (flags);
                     return;
                 }
@@ -5249,9 +5239,9 @@ void g_gt (unsigned flags, unsigned long val)
                     AddCodeLine("sba");
                     AddCodeLine("tba");
                     if (flags & CF_UNSIGNED)
-                        AddCodeLine ("jsr boolugt");
+                        AddCodeLine ("jsr boolugtc");
                     else
-                        AddCodeLine ("jsr boolgt");
+                        AddCodeLine ("jsr boolgtc");
                     pop (flags);
                     return;
                 }
@@ -5311,7 +5301,7 @@ void g_ge (unsigned flags, unsigned long val)
                         /* Do a subtraction. Condition is true if carry or z set */
                         AddCodeLine ("cmpb #$%02X", (unsigned char)val);
                         /* Do not usr clr as it clears carry */
-                        AddCodeLine ("jsr booluge");
+                        AddCodeLine ("jsr boolugec");
                         return;
                     }
                     /* FALLTHROUGH */
@@ -5382,9 +5372,9 @@ void g_ge (unsigned flags, unsigned long val)
                     if (flags & CF_FORCECHAR) {
                         AddCodeLine ("subb #$%02X", (unsigned char)val);
                         if (flags & CF_UNSIGNED)
-                            AddCodeLine ("jsr booluge");
+                            AddCodeLine ("jsr boolugec");
                         else
-                            AddCodeLine ("jsr boolge");
+                            AddCodeLine ("jsr boolgec");
                         return;
                     }
                     /* FALLTHROUGH */
@@ -5424,9 +5414,9 @@ void g_ge (unsigned flags, unsigned long val)
                     AddCodeLine("sba");
                     AddCodeLine("tba");
                     if (flags & CF_UNSIGNED)
-                        AddCodeLine ("jsr booluge");
+                        AddCodeLine ("jsr boolugec");
                     else
-                        AddCodeLine ("jsr boolge");
+                        AddCodeLine ("jsr boolgec");
                     pop (flags);
                     return;
                 }

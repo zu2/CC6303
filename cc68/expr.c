@@ -1684,7 +1684,7 @@ static void PostInc (ExprDesc* Expr)
         /* This doesn't work well because it ends up in X - we actually need
            the caller to try this via X - but the peephole can often clean
            it up */
-        if (CanLoadViaX(Flags, Expr) && CanStoreViaX(Flags, Expr) && size <= 2) {
+        if (CPU != CPU_6800 && CanLoadViaX(Flags, Expr) && CanStoreViaX(Flags, Expr) && size <= 2) {
             LoadExprX(CF_NONE, Expr);
             g_inc(Flags | CF_CONST | CF_FORCECHAR | CF_USINGX, size);
             StoreX(Expr, 0);

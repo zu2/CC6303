@@ -4,5 +4,5 @@
 
 tosugteax:
 	jsr toslucmp
-	jsr boolugt
+	jsr boolugtc
 	jmp pop4flags

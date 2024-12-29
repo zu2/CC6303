@@ -16,6 +16,16 @@
 	.export boolult
 	.export booluge
 	.export boolugt
+	.export booleqc
+	.export boolnec
+	.export boollec
+	.export boolltc
+	.export boolgec
+	.export boolgtc
+	.export boolulec
+	.export boolultc
+	.export boolugec
+	.export boolugtc
 
 ;
 ;	Turn  val op test into 1 for true 0 for false. Ensure the Z flag
@@ -24,45 +34,116 @@
 
 booleq:
 	bne	ret0
+	tstb
+	bne	ret0
 ret1:
-	clra
-	ldab	#1
+	clrb
+	ldab #1
 	rts
 
 boolne:
 	bne	ret1
+	tstb
+	bne	ret1
+	rts		; AccA,B = 0
+
+boolle:
+	blt	ret1
+	bgt	ret0
+	tstb
+	beq	ret1
 ret0:
 	clra
 	clrb
 	rts
 
-boolle:
-	beq	ret1
 boollt:
+boolltc:
 	blt	ret1
-	clra
 	clrb
+	clra
 	rts
 
 boolge:
-	beq	ret1
-boolgt:	bgt	ret1
-	clra
+boolgec:
+	bge	ret1
 	clrb
+	clra
+	rts
+
+boolgt:
+	bgt	ret1
+	tstb
+	bne	ret1
+	clra		; AccB = 0
 	rts
 
 boolugt:
-	beq	ret0
+	bhi	ret1
+	tstb
+	bne	ret1
+	clra		; AccB = 0
+	rts
+
 booluge:
+boolugec:
 	bcc	ret1
 	clra
 	clrb
 	rts
 
 boolule:
+	bcs	ret1
+	bhi	ret0
+	tstb
+	bne	ret0
+	clra		; AccB = 0
+	incb
+	rts
+
+boolult:
+boolultc:
+	bcs	ret1
+	clra
+	clrb
+	rts
+
+;
+;	char
+;
+
+booleqc:
 	beq	ret1
-boolult:			; use C flag
-	ldab	#0		; clrb clears the flag
-	tba			; clear first so the flags are right
-	rolb			; leaves us with valid EQ/NE as well	rts
+	clra
+	clrb
+	rts
+
+boolnec:
+	bne	ret1
+	clra
+	clrb
+	rts
+
+boollec:
+	ble	ret1
+	clra
+	clrb
+	rts
+
+boolgtc:
+	bgt	ret1
+	clra
+	clrb
+	rts
+
+boolugtc:
+	bhi	ret1
+	clra
+	clrb
+	rts
+
+boolulec:
+	bls	ret1
+	clra
+	clrb
 	rts

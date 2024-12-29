@@ -100,12 +100,14 @@ retn:
 		tsx
 		ldx ,x
 		sts @tmp3
+		pshb
 		ldab @tmp+1
 		addb @tmp3+1
 		stab @tmp3+1
-		ldaa @tmp
-		adca @tmp3
-		staa @tmp3
+		ldab @tmp
+		adcb @tmp3
+		stab @tmp3
+		pulb
 		lds @tmp3
 		jmp ,x
 
@@ -113,9 +115,11 @@ retn8:
 		tsx
 		ldx ,x
 		sts @tmp3
+		pshb
 		ldab @tmp+1
 		addb @tmp3+1
 		stab @tmp3+1
+		pulb
 		bcc noinc
 		inc @tmp3
 noinc:

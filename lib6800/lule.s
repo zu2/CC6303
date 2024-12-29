@@ -4,5 +4,5 @@
 
 tosuleeax:
 	jsr toslucmp
-	jsr boolule
+	jsr boolulec
 	jmp pop4flags

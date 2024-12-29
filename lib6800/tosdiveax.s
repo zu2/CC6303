@@ -8,24 +8,22 @@
 		.code
 
 tosdiveax:
-		; make work room
-		psha
 		; Arrange stack for the divide helper. TOS is already right
 		; so push the other 4 bytes we need. The divide helper knows
 		; about the fact there is junk (return address) between the
 		; two
+		psha
 		ldaa @sreg
 		staa @tmp4		; sign tracking
 		pula
 		bpl signfixed
 		jsr negeax
-		bra signfixed
 		;	Stack the 32bit working register
 signfixed:
 		pshb
 		psha
-		ldaa @sreg
 		ldab @sreg+1
+		ldaa @sreg
 		pshb
 		psha
 		;
