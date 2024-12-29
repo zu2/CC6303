@@ -9,15 +9,14 @@ fixfp:
 		; On entry B holds the offset and the caller made a hole
 		; for fp on the stack
 		tsx
+		ldx 0,x
+		stx @tmp	; return address
 		; Old fp into the hole
-		ldaa @fp
-		staa 2,x
+		tsx
+		ldaa @fp	; Reuse the location of the return address for @fp
+		staa 0,x
 		ldaa @fp+1
-		staa 3,x
-		; X is still the stack pointer offset by 1 as we want
-		; but we are an extra subroutine deep so compemsate
-		inx
-		inx
+		staa 1,x
 		stx  @fp
 		; No ABX ...
 		clra
@@ -25,7 +24,7 @@ fixfp:
 		adca @fp
 		stab @fp+1
 		staa @fp
-		rts
+		jmp jmptmp
 
 		; jumped to from the end of 6800 vararg functions
 restorefp:

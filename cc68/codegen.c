@@ -1291,8 +1291,6 @@ void g_enter (const char *name, unsigned flags, unsigned argsize)
     if ((flags & CF_FIXARGC) == 0) {
         /* Frame pointer is required for varargs mode */
         if (CPU == CPU_6800) {
-            AddCodeLine("des");
-            AddCodeLine("des");
             AddCodeLine("jsr fixfp");
         } else {
             AddCodeLine("ldx @fp");
