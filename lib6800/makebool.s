@@ -51,6 +51,7 @@ boolle:
 	blt	ret1
 	bgt	ret0
 	tstb
+booleqc:
 	beq	ret1
 ret0:
 	clra
@@ -111,12 +112,6 @@ boolultc:
 ;
 ;	char
 ;
-
-booleqc:
-	beq	ret1
-	clra
-	clrb
-	rts
 
 boolnec:
 	bne	ret1
