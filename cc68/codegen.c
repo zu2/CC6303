@@ -826,6 +826,7 @@ static void DToX(void)
 static void XToD(void)
 {
     switch (CPU) {
+        case CPU_6800:
         case CPU_6803:
             AddCodeLine("stx @tmp");
             LoadD("@tmp", 0);
@@ -1973,6 +1974,7 @@ void g_putind (unsigned Flags, unsigned Offs)
 
 void g_toslong (unsigned flags)
 /* Make sure, the value on TOS is a long. Convert if necessary */
+/* It's not easy because we can't break the current AB. */
 {
     switch (flags & CF_TYPEMASK) {
 
@@ -1983,9 +1985,11 @@ void g_toslong (unsigned flags)
             if (flags & CF_UNSIGNED) {
                 /* Push a new upper 16bits of zero */
                 if (CPU == CPU_6800) {
+                    AddCodeLine("stab @tmp+1");
                     AddCodeLine("clrb");
                     AddCodeLine("pshb");
                     AddCodeLine("pshb");
+                    AddCodeLine("ldab @tmp+1");
                 } else {
                     AssignX(0);
                     AddCodeLine("pshx");
@@ -1993,27 +1997,29 @@ void g_toslong (unsigned flags)
             } else {
                 if (CPU == CPU_6800) {
                     /* need to sign extend */
-                    unsigned L = GetLocalLabel();
+                    AddCodeLine("staa @tmp");
                     AddCodeLine("pula");
-                    AddCodeLine("clrb");
-                    AddCodeLine("oraa #0");	/* generate N flag */
-                    AddCodeLine("bpl %s", LocalLabelName (L));
-                    AddCodeLine("decb");  /* B to -1 */
-                    g_defcodelabel (L);
                     AddCodeLine("psha");
-                    AddCodeLine("pshb");
-                    AddCodeLine("pshb");
+                    AddCodeLine("asra");
+                    AddCodeLine("rola");
+                    AddCodeLine("ldaa #0");
+                    AddCodeLine("sbca #0");
+                    AddCodeLine("psha");
+                    AddCodeLine("psha");
+                    AddCodeLine("ldaa @tmp");
                 } else {
                     /* need to sign extend */
                     unsigned L = GetLocalLabel();
+                    AddCodeLine("staa @tmp");
                     AddCodeLine("pula");
                     AssignX(0);
-                    AddCodeLine("oraa #0");	/* generate N flag */
+                    AddCodeLine("tsta");	/* generate N flag */
                     AddCodeLine("bpl %s", LocalLabelName (L));
                     AddCodeLine("dex");	/* X to -1 */
                     g_defcodelabel (L);
                     AddCodeLine("psha");
                     AddCodeLine("pshx");
+                    AddCodeLine("ldaa @tmp");
                 }
             }
             push (CF_INT);
@@ -2063,11 +2069,9 @@ static void g_regchar (unsigned Flags)
     if ((Flags & CF_UNSIGNED) == 0) {
         NotViaX();
         /* Sign extend */
-        L = GetLocalLabel();
-        AddCodeLine ("cmpb #$80");
-        AddCodeLine ("bcs %s", LocalLabelName (L));
-        AddCodeLine ("coma");
-        g_defcodelabel (L);
+        AddCodeLine ("asrb");
+        AddCodeLine ("rolb");
+        AddCodeLine ("sbca #0");
     }
 }
 
@@ -2107,18 +2111,16 @@ void g_reglong (unsigned Flags)
             NotViaX();
             if (Flags & CF_FORCECHAR) {
                 /* Conversion is from char */
-                AssignX(0);
                 AddCodeLine("clra");
                 if ((Flags & CF_UNSIGNED) == 0) {
                     L = GetLocalLabel();
-                    AddCodeLine ("bitb #$80");
-                    AddCodeLine ("beq %s", LocalLabelName (L));
-                    AddCodeLine ("dex");
-                    AddCodeLine ("coma");
+                    AddCodeLine ("asrb");
+                    AddCodeLine ("rolb");
+                    AddCodeLine ("sbca #0");
                     g_defcodelabel (L);
                 }
-                AddCodeLine("stx @sreg");
-                InvalidateX();
+                AddCodeLine("staa @sreg+1");
+                AddCodeLine("staa @sreg");
                 break;   
             }
             /* FALLTHROUGH */
@@ -2127,11 +2129,11 @@ void g_reglong (unsigned Flags)
             NotViaX();
             AssignX(0);
             if ((Flags & CF_UNSIGNED)  == 0) {
-                L = GetLocalLabel();
-                AddCodeLine ("bita #$80");
-                AddCodeLine ("beq %s", LocalLabelName (L));
-                AddCodeLine ("dex");
-                g_defcodelabel (L);
+		L = GetLocalLabel();
+		AddCodeLine ("tsta");
+		AddCodeLine ("bpl %s",LocalLabelName (L));
+		AddCodeLine ("dex");
+		g_defcodelabel (L);
             }
             AddCodeLine("stx @sreg");
             InvalidateX();
@@ -2169,6 +2171,7 @@ unsigned g_typeadjust (unsigned lhs, unsigned rhs)
         rtype = CF_LONG;
     } else if (ltype != CF_LONG && (lhs & CF_CONST) == 0 && rtype == CF_LONG) {
         /* We must promote the lhs to long */
+	AddCodeLine("; We must promote the lhs to long");
         if (lhs & CF_REG) {
             g_reglong (lhs);
         } else {
@@ -3501,15 +3504,30 @@ void g_space (int Space, int save_d)
         /* This is actually a drop operation */
         g_drop (-Space, save_d);
     } else if (Space > 4 * save_d + ((CPU == CPU_6800) ? 18 : 22)) {
-        if (save_d)
-            StoreD("@tmp2", 0);
-        AddCodeLine("sts @tmp");
-        AssignD(-Space, 0);
-        AddD("@tmp", 0);
-        StoreD("@tmp", 0);
-        AddCodeLine("lds @tmp");
-        if (save_d)
-            LoadD("@tmp2", 0);
+	if (CPU == CPU_6800) {
+            AddCodeLine("sts @tmp");
+            if (save_d)
+                AddCodeLine("pshb");
+	    AddCodeLine("ldab @tmp+1");
+	    AddCodeLine("subb #<%u",Space);
+	    AddCodeLine("stab @tmp+1");
+	    AddCodeLine("ldab @tmp");
+	    AddCodeLine("sbcb #>%u",Space);
+	    AddCodeLine("stab @tmp");
+            if (save_d)
+                AddCodeLine("pulb");
+            AddCodeLine("lds @tmp");
+	}else{
+            if (save_d)
+                StoreD("@tmp2", 0);
+            AddCodeLine("sts @tmp");
+            AssignD(-Space, 0);
+            AddD("@tmp", 0);
+            StoreD("@tmp", 0);
+            AddCodeLine("lds @tmp");
+            if (save_d)
+                LoadD("@tmp2", 0);
+	}
     } else {
         if (CPU != CPU_6800) {
             while(Space > 1) {
