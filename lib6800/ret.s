@@ -15,8 +15,7 @@
 		.export ret10
 		.export ret11
 		.export ret12
-		.export retn
-		.export retn8
+		.export retnX
 
 ret1:
 		tsx
@@ -96,32 +95,18 @@ ins3:
 ;	We could have a more efficient void func version ?
 ;
 ; Big argument sets - ugly time. @tmp holds the bytes to shift by
-retn:
+retnX:
+		stx @tmp
 		tsx
-		ldx ,x
+		ldx 0,x
 		sts @tmp3
 		pshb
 		ldab @tmp+1
 		addb @tmp3+1
 		stab @tmp3+1
 		ldab @tmp
-		adcb @tmp3
+		addb @tmp3
 		stab @tmp3
 		pulb
-		lds @tmp3
-		jmp ,x
-
-retn8:
-		tsx
-		ldx ,x
-		sts @tmp3
-		pshb
-		ldab @tmp+1
-		addb @tmp3+1
-		stab @tmp3+1
-		pulb
-		bcc noinc
-		inc @tmp3
-noinc:
 		lds @tmp3
 		jmp ,x

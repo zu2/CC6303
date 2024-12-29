@@ -1334,25 +1334,10 @@ void g_leave(int voidfunc, unsigned flags, unsigned argsize)
                and cleaner that way */
             if (argsize <= 12)	/* usual case */
                 AddCodeLine("jmp ret%d", argsize);
-            else if (argsize < 254) {
-                if (!voidfunc)
-                    AddCodeLine("pshb");
-                AddCodeLine("ldab #$%02X", argsize+2);	/* 2 for return address */
-                AddCodeLine("stab @tmp + 1");
-                if (!voidfunc)
-                    AddCodeLine("pulb");
-                AddCodeLine("jmp retn8");
-            } else {	/* Insane cases */
-                if (!voidfunc)
-                    AddCodeLine("pshb");
-                AddCodeLine("ldab #<$%02X", argsize-2);
-                AddCodeLine("stab @tmp");
-                AddCodeLine("ldab #>$%02X", argsize-2);
-                AddCodeLine("stab @tmp + 1");
-                if (!voidfunc)
-                    AddCodeLine("pulb");
-                AddCodeLine("jmp retn");
-            }
+	    else {
+		AddCodeLine("ldx #$%04X", argsize+2);
+		AddCodeLine("jmp retnX");
+	    }
         } else
             AddCodeLine("rts");
     }
