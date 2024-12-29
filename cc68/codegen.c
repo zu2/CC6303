@@ -932,11 +932,11 @@ static int GenOffset(unsigned Flags, int Offs, int save_d, int exact)
     }
     /* Big offsets are ugly and we have to go via D */
     if (Offs + s >= far) {
+        AddCodeLine("sts @tmp");
         if (save_d) {
             AddCodeLine("pshb");
             AddCodeLine("psha");
         }
-        AddCodeLine("sts @tmp");
         AssignD(Offs + 1, 0);		/* So it matches a TSX based offset */
 	if (CPU != CPU_6800){
 	    AddCodeLine("addd @tmp");
@@ -988,7 +988,7 @@ static int GenOffset(unsigned Flags, int Offs, int save_d, int exact)
             AddCodeLine("abx");
         }
         if (exact) {
-            AddCodeLine("ldab #255", Offs + s);
+            AddCodeLine("ldab #$%02X", Offs + s);
             AddCodeLine("abx");
             Offs  = 0;
         }
@@ -1398,6 +1398,7 @@ void g_getimmed (unsigned Flags, unsigned long Val, long Offs)
                 break;
 
             case CF_LONG:
+            case CF_FLOAT:
                 /* Split the value into 4 bytes */
                 W1 = (unsigned short) (Val >> 0);
                 W2 = (unsigned short) (Val >> 16);
@@ -2059,8 +2060,6 @@ void g_tosint (unsigned flags)
 static void g_regchar (unsigned Flags)
 /* Make sure, the value in the primary register is in the range of char. Truncate if necessary */
 {
-    unsigned L;
-
     AddCodeLine ("clra");
 
     if ((Flags & CF_UNSIGNED) == 0) {
@@ -3060,8 +3059,6 @@ void g_cmp (unsigned flags, unsigned long val)
 ** will be set.
 */
 {
-    unsigned L;
-
     NotViaX();
 
     /* Check the size and determine operation */
