@@ -74,7 +74,7 @@ shl10e:
 	rts
 shlax15:
 	rorb			; save low bit into C
-	ldaa #0			; clear preserving C
-	ldab #0
 	rora			; into top
+	clrb
+	anda #$80
 	rts
