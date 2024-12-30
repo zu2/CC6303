@@ -2848,18 +2848,18 @@ void g_subeqlocal (unsigned flags, int Offs, unsigned long val)
                 StoreDViaX(Offs);
                 break;
             }
-		if(CPU == CPU_6800){
-		    AddCodeLine("nega");
-		    AddCodeLine("negb");
-		    AddCodeLine("sbca #0");
-                    AddDViaX(Offs);
-                    StoreDViaX(Offs);
-		}else{
-                    StoreD("@tmp", 0);
-                    LoadDViaX(Offs);
-                    SubD("@tmp", 0);
-                    StoreDViaX(Offs);
-		}
+	    if(CPU == CPU_6800){
+		AddCodeLine("nega");
+		AddCodeLine("negb");
+		AddCodeLine("sbca #0");
+		AddDViaX(Offs);
+		StoreDViaX(Offs);
+	    }else{
+		StoreD("@tmp", 0);
+		LoadDViaX(Offs);
+		SubD("@tmp", 0);
+		StoreDViaX(Offs);
+	    }
             break;
 
         case CF_LONG:
@@ -2893,7 +2893,7 @@ void g_subeqind (unsigned flags, unsigned offs, unsigned long val)
     switch (flags & CF_TYPEMASK) {
 
         case CF_CHAR:
-            /* No need to care about sign extension ? */
+            /* TODO: No need to care about sign extension ? */
             DToX();
             AddCodeLine ("clra");
             AddCodeLine ("ldab $%02X,x", offs);
@@ -3859,8 +3859,8 @@ void g_div (unsigned flags, unsigned long val)
 	unsigned v = val-1;
 	AddCodeLine ("tsta");
 	AddCodeLine ("bpl %s", LocalLabelName (L));
-	AddCodeLine ("addb #<%04x",v);
-	AddCodeLine ("adca #>%04x",v);
+	AddCodeLine ("addb #<$%04x",v);
+	AddCodeLine ("adca #>$%04x",v);
     	g_defcodelabel (L);
         g_asr (flags, p2);
     } else {
