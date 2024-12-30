@@ -1,5 +1,6 @@
 
 all: cc68 as68 copt frontend libc
+ll: cc68 copt frontend libc
 
 .PHONY: cc68 as68 frontend libc copt
 
@@ -26,12 +27,9 @@ libc:
 	rm -f lib6800.a
 	rm -f lib6803.a
 	rm -f lib6303.a
-	cp lib6800/*.o tmp
-	(cd tmp; ar rc ../lib6800.a *.o)
-	cp -f lib6803/*.o tmp
-	(cd tmp; ar rc ../lib6803.a *.o)
-	cp -f lib6303/*.o tmp
-	(cd tmp; ar rc ../lib6303.a *.o)
+	cp lib6800/lib6800.a .
+	cp lib6803/lib6803.a .
+	cp lib6303/lib6303.a .
 
 frontend:
 	+(cd frontend; make)
@@ -61,11 +59,11 @@ install:
 	mkdir -p /opt/cc68/include/flex
 	mkdir -p /opt/cc68/include/mc10
 	cp cc68/cc68 /opt/cc68/lib
-	cp as68/as68 /opt/cc68/bin
-	cp as68/ld68 /opt/cc68/bin
-	cp as68/nm68 /opt/cc68/bin
-	cp as68/osize68 /opt/cc68/bin
-	cp as68/dumprelocs68 /opt/cc68/bin
+#	cp as68/as68 /opt/cc68/bin
+#	cp as68/ld68 /opt/cc68/bin
+#	cp as68/nm68 /opt/cc68/bin
+#	cp as68/osize68 /opt/cc68/bin
+#	cp as68/dumprelocs68 /opt/cc68/bin
 	cp copt/copt /opt/cc68/lib
 	cp copt/killdeadlabel /opt/cc68/lib/killdeadlabel68
 	cp frontend/cc68 /opt/cc68/bin/

@@ -54,12 +54,13 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 
-#define CMD_AS		BINPATH"as68"
+#define FCCPATH		"/opt/fcc/"
+#define CMD_AS		FCCPATH"bin/as6800"
 #define CMD_CC		LIBPATH"cc68"
 #define CMD_COPT 	LIBPATH"copt"
 #define COPT_FILE 	LIBPATH"cc68.rules"
 #define COPT00_FILE 	LIBPATH"cc68-00.rules"
-#define CMD_LD		BINPATH"ld68"
+#define CMD_LD		FCCPATH"bin/ld6800"
 #define CRT0		LIBPATH"crt0.o"
 #define CRT0_MC10	LIBPATH"crt0_mc10.o"
 #define LIBC		LIBPATH"libc.a"

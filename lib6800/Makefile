@@ -26,10 +26,17 @@ OBJ += _isspace.o _isupper.o _isxdigit.o
 OBJ += _tolower.o _toupper.o
 OBJ += _longjmp.o _setjmp.o
 
-all: $(OBJ)
+all: lib6800.a
 
-%.o: %.s
-	../as68/as68 $^
+.s.o:
+	cc68 -m6800 -c $<
+
+.o:
+	cc68 -m6800 -O -c $<
+
+lib6800.a: $(OBJ)
+	rm -f lib6800.a
+	ar qc lib6800.a `/opt/fcc/bin/lorderz80 $(OBJ) | tsort`
 
 clean:
 	rm -f *.o *.a *~

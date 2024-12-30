@@ -19,10 +19,17 @@ OBJ += _strcmp.o _strncmp.o _strlcpy.o _strlcat.o _strncpy.o
 OBJ += _abs.o _labs.o _atoi.o
 OBJ += _longjmp.o _setjmp.o
 
-all: $(OBJ)
+all: lib6803.a
 
-%.o: %.s
-	../as68/as68 $^
+.s.o:
+	cc68 -m6803 -c $<
+
+.c.o:
+	cc68 -m6803 -O -c $<
+
+lib6803.a: $(OBJ)
+	rm -f lib6803.a
+	ar qc lib6803.a `lorderz80 $(OBJ) | tsort`
 
 clean:
 	rm -f *.o *.a *~

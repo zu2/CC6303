@@ -2,11 +2,15 @@ OBJ = _fputs.o _getchar.o _putchar.o _puts.o
 
 all: libio6800.a
 
-libio6800.a: $(OBJ)
-	ar rc libio6800.a $(OBJ)
 
-%.o: %.s
-	../../as68/as68 $^
+.s.o:
+	cc68 -m6800 -c $<
+
+.c.o:
+	cc68 -m6800 -O -c $<
+
+libio6800.a: $(OBJ)
+	ar qc libio6800.a `lorderz80 $(OBJ) | tsort`
 
 clean:
 	rm -f $(OBJ) *~ libio6800.a
