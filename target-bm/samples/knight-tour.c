@@ -23,14 +23,14 @@ printboard()
 			putchar(board[i][j]%10+'0');
 			putchar(' ');
 		}
-		putchar('\n');
+		putchar('\r');
 	}
 	puts("count=");
 	if(count>10){
 		putchar(count/10+'0');
 	}
 	putchar(count%10+'0');
-	putchar('\n');
+	putchar('\r');
 }
 
 
