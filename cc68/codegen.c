@@ -2770,11 +2770,19 @@ void g_subeqstatic (unsigned flags, uintptr_t label, long offs,
                 SubDConst(val);
                 StoreD(lbuf, 0);
             } else {
-                /* This seems to be simpler than playing with coma/b and subd */
-                StoreD("@tmp", 0);
-                LoadD(lbuf, 0);
-                SubD("@tmp", 0);
-                StoreD(lbuf, 0);
+		if(CPU == CPU_6800){
+		    AddCodeLine("nega");
+		    AddCodeLine("negb");
+		    AddCodeLine("sbca #0");
+                    AddD(lbuf,0);
+		    StoreD(lbuf,0);
+		}else{
+                    /* This seems to be simpler than playing with coma/b and subd */
+                    StoreD("@tmp", 0);
+                    LoadD(lbuf, 0);
+                    SubD("@tmp", 0);
+                    StoreD(lbuf, 0);
+		}
             }
             break;
 
@@ -2840,10 +2848,18 @@ void g_subeqlocal (unsigned flags, int Offs, unsigned long val)
                 StoreDViaX(Offs);
                 break;
             }
-            StoreD("@tmp", 0);
-            LoadDViaX(Offs);
-            SubD("@tmp", 0);
-            StoreDViaX(Offs);
+		if(CPU == CPU_6800){
+		    AddCodeLine("nega");
+		    AddCodeLine("negb");
+		    AddCodeLine("sbca #0");
+                    AddDViaX(Offs);
+                    StoreDViaX(Offs);
+		}else{
+                    StoreD("@tmp", 0);
+                    LoadDViaX(Offs);
+                    SubD("@tmp", 0);
+                    StoreDViaX(Offs);
+		}
             break;
 
         case CF_LONG:
@@ -4835,25 +4851,27 @@ void g_lt (unsigned flags, unsigned long val)
                 case CF_CHAR:
                     if (flags & CF_FORCECHAR) {
                         AddCodeLine ("aslb");          /* Bit 7 -> carry */
-                        AssignD(0, 1);
                         AddCodeLine ("rolb");
+                        AddCodeLine ("clra");
+                        AddCodeLine ("andb #1");
                         return;
                     }
                     /* FALLTHROUGH */
 
                 case CF_INT:
                     /* Just check the high byte */
-                    AddCodeLine ("asla");           /* Bit 15 -> carry */
-                    AssignD(0, 1);
+                    AddCodeLine ("asla");               /* Bit 7 -> carry */
                     AddCodeLine ("rolb");
+                    AddCodeLine ("clra");
+                    AddCodeLine ("andb #1");
                     return;
 
                 case CF_LONG:
                     /* Just check the high byte */
-                    AddCodeLine ("ldab @sreg+1");
-                    AddCodeLine ("aslb");              /* Bit 7 -> carry */
-                    AssignD(0, 1);
+                    AddCodeLine ("asl @sreg+1");	/* breaks @sreg */
                     AddCodeLine ("rolb");
+                    AddCodeLine ("clra");
+                    AddCodeLine ("andb #1");
                     return;
 
                 default:
@@ -4906,7 +4924,7 @@ void g_lt (unsigned flags, unsigned long val)
                     AddCodeLine("tba");
                     AddCodeLine("pulb");
                     AddCodeLine("sba");
-                    AddCodeLine("tba");
+                    AddCodeLine("tba");		// TODO: ???
                     if (flags & CF_UNSIGNED)
                         AddCodeLine ("jsr boolultc");
                     else

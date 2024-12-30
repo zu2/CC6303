@@ -92,9 +92,9 @@ ins3:
 		jmp ,x
 
 ;
-;	We could have a more efficient void func version ?
+;	SP += IX and return
+;		66cycle + caller ldx 3cycla
 ;
-; Big argument sets - ugly time. @tmp holds the bytes to shift by
 retnX:
 		stx @tmp
 		tsx
