@@ -4203,7 +4203,7 @@ void g_asr (unsigned flags, unsigned long val)
                     AddCodeLine ("clra");
                     AddCodeLine ("asrb");
                     AddCodeLine ("rolb");
-                    AddCodeLine ("suba #0");
+                    AddCodeLine ("sbca #0");
                     val -= 8;
                 }
                 if (val > 2) {
