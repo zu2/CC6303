@@ -6,13 +6,12 @@
 	.code
 
 negeax:
-	comb
-	coma
-	com @sreg+1
 	com @sreg
-	addb #1
-	adca #0
-	bcc ret
+	com @sreg+1
+	coma
+	negb
+	sbca #0
+	bne ret
 	inc @sreg+1
 	bne ret
 	inc @sreg
