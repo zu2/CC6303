@@ -3,10 +3,10 @@ OBJ = divide.o laddeq.o lsubeq.o tosudivax.o
 all: lib6303.a
 
 .s.o:
-	cc68 -m6303 -c $<
+	../frontend/cc68 -m6303 -c $<
 
 .c.o:
-	cc68 -m6303 -O -c $<
+	../frontend/cc68 -m6303 -O -c $<
 
 lib6303.a: $(OBJ)
 	rm -f lib6303.a

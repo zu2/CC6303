@@ -22,10 +22,10 @@ OBJ += _longjmp.o _setjmp.o
 all: lib6803.a
 
 .s.o:
-	cc68 -m6803 -c $<
+	../frontend/cc68 -m6803 -c $<
 
 .c.o:
-	cc68 -m6803 -O -c $<
+	../frontend/cc68 -m6803 -O -c $<
 
 lib6803.a: $(OBJ)
 	rm -f lib6803.a

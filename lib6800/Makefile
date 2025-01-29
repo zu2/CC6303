@@ -29,10 +29,10 @@ OBJ += _longjmp.o _setjmp.o
 all: lib6800.a
 
 .s.o:
-	cc68 -m6800 -c $<
+	../frontend/cc68 -m6800 -c $<
 
 .o:
-	cc68 -m6800 -O -c $<
+	../frontend/cc68 -m6800 -O -c $<
 
 lib6800.a: $(OBJ)
 	rm -f lib6800.a

@@ -4,10 +4,10 @@ all: libio6800.a
 
 
 .s.o:
-	cc68 -m6800 -c $<
+	../../frontend/cc68 -m6800 -c $<
 
 .c.o:
-	cc68 -m6800 -O -c $<
+	../../frontend/cc68 -m6800 -O -c $<
 
 libio6800.a: $(OBJ)
 	ar qc libio6800.a `lorderz80 $(OBJ) | tsort`
