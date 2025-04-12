@@ -203,18 +203,28 @@ static Type* promoteint (Type* lhst, Type* rhst)
     **   - If one of the values is unsigned, the result is also unsigned.
     **   - Otherwise the result is an int.
     */
-    if (IsTypeLong (lhst) || IsTypeLong (rhst)) {
+    if (IsTypeLong (lhst) && IsTypeLong (rhst)) {
         if (IsSignUnsigned (lhst) || IsSignUnsigned (rhst)) {
             return type_ulong;
         } else {
             return type_long;
         }
-    } else {
+    } else if (IsTypeLong (lhst)) {
+        return IsSignUnsigned (lhst)? type_ulong: type_long;
+    } else if (IsTypeLong (rhst)) {
+        return IsSignUnsigned (rhst)? type_ulong: type_long;
+    } else if (IsTypeInt (lhst) && IsTypeInt (rhst)) {
         if (IsSignUnsigned (lhst) || IsSignUnsigned (rhst)) {
             return type_uint;
         } else {
             return type_int;
         }
+    } else if (IsTypeInt (lhst)) {
+	return IsSignUnsigned (lhst)? type_uint: type_int;
+    } else if (IsTypeInt (rhst)) {
+	return IsSignUnsigned (rhst)? type_uint: type_int;
+    } else {
+        return type_int;
     }
 }
 

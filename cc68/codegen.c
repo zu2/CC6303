@@ -2144,7 +2144,7 @@ unsigned g_typeadjust (unsigned lhs, unsigned rhs)
         /* We must promote the primary register to long */
         g_reglong (rhs);
         /* Get the new rhs type */
-        rhs = (rhs & ~CF_TYPEMASK) | CF_LONG;
+        rhs = (rhs & ~CF_STYPEMASK) | CF_LONG;
         rtype = CF_LONG;
     } else if (ltype != CF_LONG && (lhs & CF_CONST) == 0 && rtype == CF_LONG) {
         /* We must promote the lhs to long */
@@ -2155,10 +2155,9 @@ unsigned g_typeadjust (unsigned lhs, unsigned rhs)
             g_toslong (lhs);
         }
         /* Get the new rhs type */
-        lhs = (lhs & ~CF_TYPEMASK) | CF_LONG;
+        lhs = (lhs & ~CF_STYPEMASK) | CF_LONG;
         ltype = CF_LONG;
     }
-
     /* Determine the result type for the operation:
     **  - The result is const if both operands are const.
     **  - The result is unsigned if one of the operands is unsigned.
@@ -2166,11 +2165,20 @@ unsigned g_typeadjust (unsigned lhs, unsigned rhs)
     **  - Otherwise the result is int sized.
     */
     result = (lhs & CF_CONST) & (rhs & CF_CONST);
-    result |= (lhs & CF_UNSIGNED) | (rhs & CF_UNSIGNED);
-    if (rtype == CF_LONG || ltype == CF_LONG) {
+    if (ltype == CF_LONG || rtype == CF_LONG) {
+        result |= (lhs & CF_UNSIGNED) | (rhs & CF_UNSIGNED);
         result |= CF_LONG;
-    } else {
-        result |= CF_INT;
+    } else if (ltype == CF_INT && rtype == CF_INT) {
+	result |= (lhs & CF_UNSIGNED) | (rhs & CF_UNSIGNED);
+	result |= CF_INT;
+    } else if (ltype == CF_INT) {
+	result |= (lhs & CF_UNSIGNED);
+	result |= CF_INT;
+    } else if (rtype == CF_INT) {
+	result |= (rhs & CF_UNSIGNED);
+	result |= CF_INT;
+    } else {	// lhs and rhs type are char
+	result |= CF_INT;
     }
     return result;
 }
