@@ -6,6 +6,5 @@ storetos:
 		tsx
 		stab 3,x
 		staa 2,x
-		inx
-		inx
+		ldx 2,x
 		rts
