@@ -1810,7 +1810,7 @@ static void UnaryOp (ExprDesc* Expr)
     }
 
     /* Check for a constant expression */
-    if (ED_IsConstAbs (Expr)) {
+    if (ED_IsConstAbs (Expr) && Tok!=TOK_COMP) {
         /* Value is constant */
         switch (Tok) {
             case TOK_MINUS: Expr->IVal = -Expr->IVal;   break;
@@ -1821,6 +1821,9 @@ static void UnaryOp (ExprDesc* Expr)
     } else {
         /* Value is not constant */
         LoadExpr (CF_NONE, Expr);
+
+	Expr->Type = IntPromotion (Expr->Type);
+	TypeConversion (Expr, Expr->Type);
 
         /* Get the type of the expression */
         Flags = TypeOf (Expr->Type);
@@ -2711,7 +2714,8 @@ static void parseadd (ExprDesc* Expr)
         /* Left hand side is not constant. Get the value onto the stack. */
         LoadExpr (CF_NONE, Expr);              /* --> primary register */
         GetCodePos (&Mark);
-        g_push (TypeOf (Expr->Type), 0);        /* --> stack */
+	flags = TypeOf (Expr->Type);
+        g_push (flags, 0);                     /* --> stack */
 
         /* Evaluate the rhs */
         MarkedExprWithCheck (hie9, &Expr2);

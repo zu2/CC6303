@@ -1520,6 +1520,8 @@ void g_getlocal (unsigned Flags, int Offs)
 
         case CF_INT:
             LoadDViaX(Offs);
+            if (Flags & CF_TEST)
+                g_test (Flags);
             break;
 
         case CF_LONG:
@@ -1627,6 +1629,8 @@ void g_getind (unsigned Flags, unsigned Offs)
         case CF_INT:
             DToX();
             LoadDViaX(Offs);
+            if (Flags & CF_TEST)
+                g_test (Flags);
             break;
 
         case CF_LONG:
@@ -1634,9 +1638,8 @@ void g_getind (unsigned Flags, unsigned Offs)
             LoadDViaX(Offs);
             StoreD("@sreg", 0);
             LoadDViaX(Offs + 2);
-            if (Flags & CF_TEST) {
+            if (Flags & CF_TEST)
                 g_test (Flags);
-            }
             break;
 
         default:

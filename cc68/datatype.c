@@ -698,11 +698,10 @@ Type* IntPromotion (Type* T)
     /* We must have an int to apply int promotions */
     PRECONDITION (IsClassInt (T));
 
-    /* An integer can represent all values from either signed or unsigned char,
-    ** so convert chars to int and leave all other types alone.
-    */
     if (IsTypeChar (T)) {
         return type_int;
+    } else if (IsTypeShort (T)) {
+        return IsSignUnsigned (T) ? type_uint : type_int;
     } else {
         return T;
     }
