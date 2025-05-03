@@ -19,7 +19,8 @@ OBJ += tosultax.o tosugtax.o tosuleax.o tosugeax.o
 OBJ += tosumulax.o tosumodeax.o multiply32x32.o
 
 OBJ += __cpu_to_le16.o __cpu_to_le32.o
-OBJ += _memcpy.o _memset.o _strlen.o _strcpy.o _strcmp.o _strchr.o
+OBJ += _memcpy.o _memset.o _memchr.o
+OBJ += _strlen.o _strcpy.o _strcmp.o _strchr.o
 OBJ += _isalnum.o _isalpha.o _isascii.o _isblank.o _iscntrl.o
 OBJ += _isdigit.o _isgraph.o _islower.o _isprint.o _ispunct.o
 OBJ += _isspace.o _isupper.o _isxdigit.o
