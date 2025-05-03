@@ -16,7 +16,7 @@ tosleeax:
 	ldaa 4,x
 	cmpa @tmp
 	bne  found
-	ldab 4,x
+	ldab 5,x
 	cmpb @tmp+1
 found:	bcc true
 false:	jmp false4
