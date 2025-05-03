@@ -1,5 +1,5 @@
 ;
-;	char *strcmp(const char *s1, const char *s2)
+;	int strcmp(const char *s1, const char *s2)
 ;
 
 	.export _strcmp
@@ -7,10 +7,10 @@
 
 _strcmp:
 	tsx
-	ldx	4,x		; dest
+	ldx	2,x		; dest
 	stx	@tmp
 	tsx
-	ldx	2,x		; src
+	ldx	4,x		; src
 	bra	cmpbegin
 cmploop:
 	inx
@@ -26,7 +26,7 @@ cmpbegin:
 	tstb
 	bne	cmploop
 cmpzero:
-	clrb
+;	clrb			; here, b=0
 	clra
 	jmp	ret4
 cmpend:
