@@ -118,6 +118,7 @@ int targetos;
 #define OS_MC10		2
 #define OS_FLEX		3
 int fuzixsub;
+char *ProgName;
 
 #define MAXARG	512
 
@@ -603,9 +604,43 @@ void unused_files(void)
 	}
 }
 
-void usage(void)
+void usage()
 {
-	fprintf(stderr, "usage...\n");
+	fprintf (stderr,"Usage: %s [options] file\n"
+	"Short options:\n"
+	"  -Dsym[=defn]\t\t\tDefine a symbol\n"
+	"  -E\t\t\t\tStop after the preprocessing stage\n"
+	"  -I dir\t\t\tSet an include directory search path\n"
+	"  -L dir\t\t\tSet an library directory search path\n"
+	"  -M\t\t\t\tMap file\n"
+	"  -S\t\t\t\tStop after the compile stage\n"
+	"  -X\t\t\t\tKeep temp\n"
+	"  -c\t\t\t\tStop after the assemble stage\n"
+	"  -i\t\t\t\t\n"
+	"  -l\t\t\t\tAdd library\n"
+	"  -m cpu\t\t\t\tTarget cpu (6800, 6803, 6303)\n"
+	"  -o name\t\t\tName the output file\n"
+	"  -s\t\t\t\tStandalone\n"
+	"  -r\t\t\t\tEnable register variables\n"
+	"  -t sys\t\t\tSet the target system (fuzix, fuzixrel1, fuzixrel2, mc10, flex)\n"
+	"\n"
+	"Long options:\n"
+	"  --add-source\t\t\tInclude source as comment\n"
+	"  --bss-name seg\t\tSet the name of the BSS segment\n"
+	"  --check-stack\t\t\tGenerate stack overflow checks\n"
+	"  --code-name seg\t\tSet the name of the CODE segment\n"
+	"  --cpu type\t\t\tSet cpu type (6800, 6803, 6303)\n"
+	"  --data-name seg\t\tSet the name of the DATA segment\n"
+	"  --debug\t\t\tDebug mode\n"
+	"  --inline-stdfuncs\t\tInline some standard functions\n"
+	"  --register-space b\t\tSet space available for register variables\n"
+	"  --register-vars\t\tEnable register variables\n"
+	"  --rodata-name seg\t\tSet the name of the RODATA segment\n"
+	"  --signed-chars\t\tDefault characters are signed\n"
+	"  --standard std\t\tLanguage standard (c89, c99, cc65)\n"
+	"  --verbose\t\t\tIncrease verbosity\n"
+	"  --writable-strings\t\tMake string literals writable\n",
+	ProgName);
 	fatal();
 }
 
@@ -738,6 +773,8 @@ int main(int argc, char *argv[])
 {
 	char **p = argv;
 	signal(SIGCHLD, SIG_DFL);
+
+	ProgName = argv[0];
 
 	while (*++p) {
 		/* filename or option ? */
