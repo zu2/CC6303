@@ -4399,9 +4399,9 @@ void g_neg (unsigned Flags)
             /* FALLTHROUGH */
 
         case CF_INT:
-            SubDConst(1);
-            AddCodeLine ("coma");
-            AddCodeLine ("comb");
+            AddCodeLine ("nega");
+            AddCodeLine ("negb");
+            AddCodeLine ("sbca #0");
             break;
 
         case CF_LONG:
