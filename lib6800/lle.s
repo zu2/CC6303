@@ -1,4 +1,6 @@
-
+;
+;       TOS (2-5,x) <= sreg:D ?
+;
 	.code
 	.export tosleeax
 
@@ -18,8 +20,6 @@ tosleeax:
 	bne  found
 	ldab 5,x
 	cmpb @tmp+1
-found:	bcc true
+found:	bcs true
 false:	jmp false4
 true:	jmp true4
-
-
