@@ -18,7 +18,7 @@ _memchr:
 	staa @tmp		; stop point
 ;
 	ldab 5,x
-	ldx 2,x			; start point
+	ldx 6,x			; start point
 loop:
 	cmpb ,x
 	beq match
@@ -28,9 +28,9 @@ loop:
 retnull:
 	clra
 	clrb
-	rts
+	jmp ret6
 match:
 	stx @tmp
 	ldab @tmp+1
 	ldaa @tmp
-	rts
+	jmp ret6
