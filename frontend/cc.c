@@ -875,6 +875,7 @@ int main(int argc, char *argv[])
 			}
 			break;
 		default:
+			fprintf (stderr,"Unknown option: %s\n", *p);
 			usage();
 		}
 	}
