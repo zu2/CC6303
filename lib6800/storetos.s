@@ -4,7 +4,8 @@
 
 storetos:
 		tsx
-		stab 3,x
-		staa 2,x
-		ldx 2,x
+		inx
+		inx
+		stab 1,x
+		staa 0,x
 		rts
