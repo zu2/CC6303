@@ -11,14 +11,19 @@ _strchr:
 	tsx
 	ldab 3,x
 	ldx 4,x
-loop:	cmpb ,x
-	beq found
+	dex
+;
+loop:
 	inx
-	ldaa ,x
+	cmpb 0,x
+	beq found
+	ldaa 0,x
 	bne loop
+;
 	clra
 	clrb
 	jmp ret4
+;
 found:
 	stx @tmp
 	ldab @tmp+1
