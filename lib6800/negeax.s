@@ -8,7 +8,7 @@
 negeax:
 	com @sreg
 	com @sreg+1
-	coma
+	nega
 	negb
 	sbca #0
 	bne ret
