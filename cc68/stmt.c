@@ -350,6 +350,9 @@ static void ReturnStatement (void)
     /* Cleanup the stack in case we're inside a block with locals */
     g_space (StackPtr - F_GetTopLevelSP (CurrentFunc), 1);
 
+    /* Correct the stack pointer */
+    StackPtr -= StackPtr - F_GetTopLevelSP (CurrentFunc);
+
     /* Output a jump to the function exit code */
     g_jump (F_GetRetLab (CurrentFunc));
 }
@@ -376,6 +379,9 @@ static void BreakStatement (void)
 
     /* Correct the stack pointer if needed */
     g_space (StackPtr - L->StackPtr, 1);
+
+    /* Correct the stack pointer */
+    StackPtr -= StackPtr - L->StackPtr;
 
     /* Jump to the exit label of the loop */
     g_jump (L->BreakLabel);
@@ -411,6 +417,9 @@ static void ContinueStatement (void)
 
     /* Correct the stackpointer if needed */
     g_space (StackPtr - L->StackPtr, 1);
+
+    /* Correct the stack pointer */
+    StackPtr -= StackPtr - L->StackPtr;
 
     /* Jump to next loop iteration */
     g_jump (L->ContinueLabel);

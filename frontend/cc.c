@@ -618,7 +618,7 @@ void usage()
 	"  -c\t\t\t\tStop after the assemble stage\n"
 	"  -i\t\t\t\t\n"
 	"  -l\t\t\t\tAdd library\n"
-	"  -m cpu\t\t\t\tTarget cpu (6800, 6803, 6303)\n"
+	"  -m{cpu}\t\t\t\tTarget cpu (6800, 6803, 6303)\n"
 	"  -o name\t\t\tName the output file\n"
 	"  -s\t\t\t\tStandalone\n"
 	"  -r\t\t\t\tEnable register variables\n"

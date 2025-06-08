@@ -3,6 +3,9 @@
 ;
 	.code
 start:
+	sts exitsp
+	lds #$fdff
+;
 	ldx #__bss_size
 	beq nobss
 	ldx #__bss
@@ -21,8 +24,6 @@ clear_bss_1:
 	cpx @tmp
 	bne clear_bss
 nobss:
-	sts exitsp
-	lds #$7fff
 	;
 	; Runtime DP constants
 	;

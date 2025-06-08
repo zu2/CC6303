@@ -51,6 +51,7 @@
 #include "expr.h"
 #include "loadexpr.h"
 #include "scanner.h"
+#include "stackptr.h"
 #include "stdnames.h"
 #include "typecmp.h"
 #include "typeconv.h"
@@ -151,6 +152,8 @@ void Assignment (ExprDesc* Expr)
                 g_call (CF_FIXARGC, Func_memcpy, 6);
                 /* Now drop the stacked arguments */
                 g_drop(6, 0);
+                /* Correct the stack pointer */
+                StackPtr += 6;
             }
 
         } else {
