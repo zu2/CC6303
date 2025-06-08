@@ -2374,7 +2374,7 @@ static void hie_compare (const GenDesc* Ops,    /* List of generators */
             }
 
             /* Determine the type of the operation. */
-            if (IsTypeChar (Expr->Type) && rconst) {
+            if (IsTypeChar (Expr->Type) && rconst && (!LeftSigned || RightSigned)) {
 
                 /* Left side is unsigned char, right side is constant.
                 ** Determine the minimum and maximum values
