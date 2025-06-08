@@ -8,9 +8,9 @@
 tosshreax:	
 	cmpb	#32
 	bcc	ret0
+	tsx
 	tstb
 	beq noshift
-	tsx
 loop:
 	lsr	2,x
 	ror	3,x
