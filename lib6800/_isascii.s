@@ -12,5 +12,6 @@ _isascii:
 		tst 3,x
 		bmi fail
 		incb
-fail:		
-		jmp ret2
+        bra good
+fail:	clrb
+good:	jmp ret2
