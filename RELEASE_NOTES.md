@@ -121,6 +121,17 @@ Currently the system supports fuzix, mc10 and flex targets.
 When debugging the '-X' option keeps the temporary files. The .@ file is the
 compiler output, the '.s' file is the results of the optimizing pass.
 
+Optimize options '-O{irs}': '-Oi' reduce code size, '-Or' enables reg arg, '-Os' inline std functions.
+
+--standard {c89,c99,cc65}
+
+## Predefined macro
+
+## Standard
+
+- STD\_CC68 
+
+
 ## Additional Credits
 
 The cc68 compiler would not be possible without the work of Ullrich von
