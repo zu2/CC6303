@@ -105,7 +105,7 @@ retnX:
 		addb @tmp3+1
 		stab @tmp3+1
 		ldab @tmp
-		addb @tmp3
+		adcb @tmp3
 		stab @tmp3
 		pulb
 		lds @tmp3
