@@ -4,11 +4,23 @@ This is a fork of @EtchedPixels CC6303 compiler. The license is the same as the 
 
 In this fork, the output for the 6800 CPU has been significantly improved.
 
-I'm not familiar with the 6303 CPU, so there may be some worsening in the 6303 side. Any help would be appreciated.
+The 6800 version is maintained here. Issues and pull requests are always welcome.
+
+If you have any requests or suggestions for other CPUs (6303,6803), please let me know by opening an issue or pull request. 
 
 ----
 ----
 Below is the original README.
+----
+----
+# THIS IS NO LONGER AN ACTIVE PROJECT
+
+For the current compiler and tools work please see
+- https://github.com/EtchedPixels/Fuzix-Bintools
+- https://github.com/EtchedPixels/Fuzix-Compiler-Kit
+
+For a 6800 specific fork of this code under development by Zu2 please see
+- https://github.com/zu2/CC6303
 
 # CC6303
 A C compiler for the 6800/6803/6303 processors
