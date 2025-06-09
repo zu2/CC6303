@@ -11,6 +11,9 @@ If you have any requests or suggestions for other CPUs (6303,6803), please let m
 ----
 ----
 Below is the original README.
+
+The original project is no longer active, but this repository will continue to maintain it.
+
 ----
 ----
 # THIS IS NO LONGER AN ACTIVE PROJECT
