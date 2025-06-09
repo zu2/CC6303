@@ -736,7 +736,7 @@ static void LsrDBy(int n)
     if (n == 15) {
         AddCodeLine("rola");	/* top bit into carry */
         AssignD(0, 1);
-        AddCodeLine("rorb");	/* carry into bottom bit */
+        AddCodeLine("rolb");	/* carry into bottom bit */
         return;
     }
 
@@ -786,7 +786,7 @@ static void AslDBy(int n)
     }
 
     if (n == 15) {
-        AddCodeLine("rolb");		/* Low bit into carry */
+        AddCodeLine("rorb");		/* Low bit into carry */
         AssignD(0, 1);			/* Clear */
         AddCodeLine("rora");		/* Carry into top bit */
         return;
