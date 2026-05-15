@@ -1,5 +1,5 @@
 ;
-;	isdigit(unsigned char c)
+;	isgraph(unsigned char c)
 ;		return (c>=0x21) && (c<=0x7e);
 ;
 		.export _isgraph
