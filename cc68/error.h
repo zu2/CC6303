@@ -75,6 +75,7 @@ extern IntStack WarningsAreErrors;      /* Treat warnings as errors */
 extern IntStack WarnConstComparison;    /* - constant comparison results */
 extern IntStack WarnNoEffect;           /* - statements without an effect */
 extern IntStack WarnPointerSign;        /* - pointer conversion to pointer differing in signedness */
+extern IntStack WarnPointerTypes;       /* - pointer conversion to pointer differing in type */
 extern IntStack WarnRemapZero;          /* - remapping character code zero */
 extern IntStack WarnStructParam;        /* - structs passed by val */
 extern IntStack WarnUnknownPragma;      /* - unknown #pragmas */

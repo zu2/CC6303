@@ -242,7 +242,9 @@ void TypeConversion (ExprDesc* Expr, Type* NewType)
                 switch (TypeCmp (NewType, Expr->Type)) {
 
                     case TC_INCOMPATIBLE:
-                        Error ("Incompatible pointer types at '%s'", (Expr->Sym? Expr->Sym->Name : "Unknown"));
+                        if (IS_Get (&WarnPointerTypes)) {
+                            Warning ("Incompatible pointer conversion at '%s'", (Expr->Sym? Expr->Sym->Name : "Unknown"));
+                        }
                         break;
 
                     case TC_PTR_SIGN_DIFF:
