@@ -118,6 +118,7 @@ int targetos;
 #define OS_MC10		2
 #define OS_FLEX		3
 int fuzixsub;
+long start_addr = -1;	/* -1: use the target default */
 char *ProgName;
 
 #define MAXARG	512
@@ -224,6 +225,26 @@ static void add_int_argument(int n)
 	char buf[16];
 	snprintf(buf, 16, "%d", n);
 	return add_argument(xstrdup(buf, 0));
+}
+
+/*
+ *	The base address the binary is linked at. Each target has a default,
+ *	which --start-addr overrides.
+ */
+static int target_base(void)
+{
+	if (start_addr >= 0)
+		return start_addr;
+	switch(targetos) {
+	case OS_MC10:
+		return 17500;
+	case OS_FUZIX:
+		return (fuzixsub == 2) ? 512 : 256;
+	case OS_FLEX:
+	case OS_NONE:
+	default:
+		return 256;
+	}
 }
 
 static void add_argument_list(char *header, struct objhead *h)
@@ -444,14 +465,14 @@ void link_phase(void)
 			case 1:
 				add_argument("-b");
 				add_argument("-C");
-				add_argument("256");
+				add_int_argument(target_base());
 				add_argument("-Z");
 				add_argument("0");
 				break;
 			case 2:
 				add_argument("-b");
 				add_argument("-C");
-				add_argument("512");
+				add_int_argument(target_base());
 				add_argument("-Z");
 				add_argument("2");
 				break;
@@ -460,7 +481,7 @@ void link_phase(void)
 		case OS_MC10:
 			add_argument("-b");
 			add_argument("-C");
-			add_argument("17500");
+			add_int_argument(target_base());
 			/* I/O at 0-31 next chunk seem to be used in IRQ*/
 			add_argument("-Z");
 			/* Internal low RAM is 0x80-0xFF, no external low RAM */
@@ -469,7 +490,7 @@ void link_phase(void)
 		case OS_FLEX:
 			add_argument("-b");
 			add_argument("-C");
-			add_argument("256");
+			add_int_argument(target_base());
 			/* So we will work on 6303X etc */
 			add_argument("-Z");
 			add_argument("40");
@@ -478,7 +499,7 @@ void link_phase(void)
 		default:
 			add_argument("-b");
 			add_argument("-C");
-			add_argument("256");
+			add_int_argument(target_base());
 			break;
 	}
 	if (strip)
@@ -524,20 +545,20 @@ void link_phase(void)
 		build_arglist(CMD_TAPEIFY);
 		add_argument(target);
 		add_argument(extend(target, ".c10"));
-		add_int_argument(17500);
-		add_int_argument(filesize(target) - 17500);
-		add_int_argument(17500);
+		add_int_argument(target_base());
+		add_int_argument(filesize(target) - target_base());
+		add_int_argument(target_base());
 		run_command();
 		break;
 	case OS_FLEX:
 		/* FLEX */
 		build_arglist(CMD_BINIFY);
 		add_argument("-s");
-		add_int_argument(0x0100);
+		add_int_argument(target_base());
 		add_argument("-l");
-		add_int_argument(filesize(target) - 0x0100);
+		add_int_argument(filesize(target) - target_base());
 		add_argument("-x");
-		add_int_argument(0x0100);
+		add_int_argument(target_base());
 		add_argument(target);
 		add_argument(extend(target, ".cmd"));
 		run_command();
@@ -638,6 +659,7 @@ void usage()
 	"  --rodata-name seg\t\tSet the name of the RODATA segment\n"
 	"  --signed-chars\t\tDefault characters are signed\n"
 	"  --standard std\t\tLanguage standard (c89, c99, cc65)\n"
+	"  --start-addr addr\t\tSet the link base address (overrides the target default)\n"
 	"  --verbose\t\t\tIncrease verbosity\n"
 	"  --writable-strings\t\tMake string literals writable\n",
 	ProgName);
@@ -753,6 +775,18 @@ char **longopt(char **ap)
 {
 	char *p = *ap + 2;
 	char **x = passopts;
+	if (strcmp(p, "start-addr") == 0) {
+		char *e;
+		p = *++ap;
+		if (p == NULL)
+			usage();
+		start_addr = strtol(p, &e, 0);
+		if (*e || start_addr < 0 || start_addr > 0xFFFF) {
+			fprintf(stderr, "cc: invalid start address '%s'.\n", p);
+			fatal();
+		}
+		return ap;
+	}
 	while(*x) {
 		char *t = *x++;
 		if (strcmp(t + 1, p) == 0) {

@@ -1,4 +1,4 @@
-OBJ = divide.o laddeq.o lsubeq.o tosudivax.o
+OBJ = divide.o laddeq.o lsubeq.o tosudivax.o directpage.o
 
 all: lib6303.a
 
