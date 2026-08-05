@@ -252,7 +252,8 @@ void TypeConversion (ExprDesc* Expr, Type* NewType)
                         break;
 
                     case TC_QUAL_DIFF:
-                        Error ("Pointer types differ in type qualifiers");
+                        /* Discarding qualifiers is a bad thing and we always warn */
+                        Warning ("Pointer conversion discards qualifiers");
                         break;
 
                     default:
