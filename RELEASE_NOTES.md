@@ -47,6 +47,12 @@ will ignore the hint.
 As the compiler has direct page temporaries and register variables any
 re-entrant code for interrupts or signals will need to save these first.
 
+C functions may pass and return structs (or unions) by value, but only of 1,
+2 or 4 byte sizes, as with cc65.
+
+Bitfields have not been tested at all. They may work but if they do it's by
+accident.
+
 ## Calling Conventions
 
 cc68 uses cc65 like conventions for the 6800 processor. Arguments are
