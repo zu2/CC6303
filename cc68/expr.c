@@ -1203,26 +1203,30 @@ static void StructRef (ExprDesc* Expr)
 
         /* Get the size of the type */
         unsigned Size = SizeOf (Expr->Type);
+        unsigned FieldSize = SizeOf (Field->Type);
 
         /* Safety check */
-        CHECK (Field->V.Offs + Size <= SIZEOF_LONG);
+        CHECK (Field->V.Offs + FieldSize <= Size);
 
         /* The type of the operation depends on the type of the struct */
         switch (Size) {
-            case 1:     Flags = CF_CHAR | CF_UNSIGNED | CF_CONST;       break;
-            case 2:     Flags = CF_INT  | CF_UNSIGNED | CF_CONST;       break;
+            case 1:     Flags = CF_CHAR | CF_UNSIGNED;                  break;
+            case 2:     Flags = CF_INT  | CF_UNSIGNED;                  break;
             case 3:     /* FALLTHROUGH */
-            case 4:     Flags = CF_LONG | CF_UNSIGNED | CF_CONST;       break;
+            case 4:     Flags = CF_LONG | CF_UNSIGNED;                  break;
             default:    Internal ("Invalid struct size: %u", Size);     break;
         }
 
         /* Generate a shift to get the field in the proper position in the
         ** primary. For bit fields, mask the value.
+        ** Unlike the 6502 we are big endian, so offset 0 sits in the high
+        ** bytes of the primary and the shift counts the bytes behind it.
+        ** CF_CONST tells g_asr that the shift count is an immediate.
         */
-        BitOffs = Field->V.Offs * CHAR_BITS;
+        BitOffs = (Size - Field->V.Offs - FieldSize) * CHAR_BITS;
         if (SymIsBitField (Field)) {
             BitOffs += Field->V.B.BitOffs;
-            g_asr (Flags, BitOffs);
+            g_asr (Flags | CF_CONST, BitOffs);
             /* Mask the value. This is unnecessary if the shift executed above
             ** moved only zeroes into the value.
             */
@@ -1231,7 +1235,13 @@ static void StructRef (ExprDesc* Expr)
                        (0x0001U << Field->V.B.BitWidth) - 1U);
             }
         } else {
-            g_asr (Flags, BitOffs);
+            g_asr (Flags | CF_CONST, BitOffs);
+            /* The shift leaves the bytes in front of the field in the primary
+            ** unless it happened to shift them all out.
+            */
+            if (FieldSize < Size) {
+                g_typecast (TypeOf (FinalType), Flags);
+            }
         }
 
         /* Use the new type */

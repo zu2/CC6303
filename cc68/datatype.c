@@ -537,6 +537,15 @@ unsigned TypeOf (const Type* T)
 
         case T_STRUCT:
         case T_UNION:
+            /* Unlike cc65 we cannot use CF_NONE as a "no replacement" marker
+            ** because CF_LONG is zero here, so switch on the size directly.
+            */
+            switch (SizeOf (T)) {
+                case 1:     return CF_CHAR;
+                case 2:     return CF_INT;
+                case 3:     /* FALLTHROUGH */
+                case 4:     return CF_LONG;
+            }
             /* Address of ... */
             return CF_INT | CF_UNSIGNED;
 
