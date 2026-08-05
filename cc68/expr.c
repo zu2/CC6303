@@ -2311,7 +2311,13 @@ static void hie_compare (const GenDesc* Ops,    /* List of generators */
                 */
                 Type* left  = Indirect (Expr->Type);
                 Type* right = Indirect (Expr2.Type);
-                if (TypeCmp (left, right) < TC_QUAL_DIFF && left->C != T_VOID && right->C != T_VOID) {
+                typecmp_t Cmp = TypeCmp (left, right);
+                if (Cmp == TC_SIGN_DIFF) {
+                    /* Pointees differ in signedness only */
+                    if (IS_Get (&WarnPointerSign)) {
+                        Warning ("Comparing pointers that differ in signedness");
+                    }
+                } else if (Cmp < TC_QUAL_DIFF && left->C != T_VOID && right->C != T_VOID) {
                     /* Incompatible pointers */
                     Error ("Incompatible types");
                 }

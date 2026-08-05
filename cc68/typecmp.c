@@ -251,7 +251,7 @@ static void DoCompare (const Type* lhs, const Type* rhs, typecmp_t* Result)
             if (ElementCount == 0) {
                 SetResult (Result, TC_SIGN_DIFF);
             } else {
-                SetResult (Result, TC_INCOMPATIBLE);
+                SetResult (Result, TC_PTR_SIGN_DIFF);
                 return;
             }
         }

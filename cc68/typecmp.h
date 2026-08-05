@@ -60,6 +60,7 @@
 /* Degree of type compatibility. Must be in ascending order */
 typedef enum {
     TC_INCOMPATIBLE,              /* Distinct types */
+    TC_PTR_SIGN_DIFF,             /* Pointee signedness differs */
     TC_SIGN_DIFF,                 /* Signedness differs */
     TC_COMPATIBLE = TC_SIGN_DIFF, /* Compatible types */
     TC_QUAL_DIFF,                 /* Types differ in qualifier of pointer */

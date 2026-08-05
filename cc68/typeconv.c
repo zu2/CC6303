@@ -245,6 +245,12 @@ void TypeConversion (ExprDesc* Expr, Type* NewType)
                         Error ("Incompatible pointer types at '%s'", (Expr->Sym? Expr->Sym->Name : "Unknown"));
                         break;
 
+                    case TC_PTR_SIGN_DIFF:
+                        if (IS_Get (&WarnPointerSign)) {
+                            Warning ("Pointer conversion changes pointer signedness");
+                        }
+                        break;
+
                     case TC_QUAL_DIFF:
                         Error ("Pointer types differ in type qualifiers");
                         break;
