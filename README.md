@@ -21,13 +21,15 @@ is on your PATH. Then:
     make
     sudo make install
 
-Do not use the bundled as68. It is deprecated and will be removed.
+The old bundled assembler (as68) has been removed. See #13.
 
 ## Notes
 
 - `--start-addr addr` sets the link base address (see #12).
 - 6803, 6303 and mc10 link now, but the output is not tested.
-- lib6303 has only a few routines. Real work should use -m6800.
+- 6803 and 6303 fall back to lib6800 for routines they do not have
+  (#15). The 6800 code does not use the extra 6803 instructions,
+  so it is slower.
 
 ----
 ----
