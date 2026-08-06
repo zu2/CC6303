@@ -530,12 +530,18 @@ void link_phase(void)
 			append_obj(&liblist, LIBFLEX, TYPE_A);
 		}
 	}
+	/*
+	 *	lib6803 and lib6303 only hold the routines that were written
+	 *	for those CPUs. The rest still lives in lib6800, and runs on
+	 *	6803 and 6303 as well, so fall back to it. The linker takes
+	 *	the first definition it finds, so the tuned version wins
+	 *	where there is one. See issue #15.
+	 */
 	if (cpu == 6303)
 		append_obj(&liblist, LIB6303, TYPE_A);
-	else if (cpu == 6803)
+	if (cpu == 6303 || cpu == 6803)
 		append_obj(&liblist, LIB6803, TYPE_A);
-	else
-		append_obj(&liblist, LIB6800, TYPE_A);
+	append_obj(&liblist, LIB6800, TYPE_A);
 	add_argument_list(NULL, &objlist);
 	resolve_libraries();
 	run_command();
