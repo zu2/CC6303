@@ -6,7 +6,7 @@ libio6803.a: $(OBJ)
 	ar rc libio6803.a $(OBJ)
 
 %.o: %.s
-	../../as68/as68 $^
+	as6800 $^
 
 clean:
 	rm -f $(OBJ) *~ libio6803.a

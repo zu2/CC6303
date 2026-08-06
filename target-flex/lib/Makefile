@@ -10,7 +10,7 @@ libflex.a: $(OBJ)
 	ar rc libflex.a $(OBJ)
 
 %.o: %.s
-	../../as68/as68 $^
+	as6800 $^
 
 clean:
 	rm -f $(OBJ) *~ libflex.a crt0.o
