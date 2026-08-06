@@ -1,18 +1,17 @@
 ;
 ;	Negate the working register
 ;
-	.export negeax
+        .export negeax
+        .code
 
-	.code
-
-negeax:
-	com @sreg
-	com @sreg+1
-	nega
-	negb
-	sbca #0
-	bne ret
-	inc @sreg+1
-	bne ret
-	inc @sreg
-ret:	rts
+negeax: com @sreg
+        com @sreg+1
+        coma
+        comb
+        addb #1
+        adca #0
+        bcc ret
+        inc @sreg+1
+        bne ret
+        inc @sreg
+ret:    rts
