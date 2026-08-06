@@ -8,6 +8,27 @@ The 6800 version is maintained here. Issues and pull requests are always welcome
 
 If you have any requests or suggestions for other CPUs (6303,6803), please let me know by opening an issue or pull request. 
 
+## Building
+
+You need Fuzix-Bintools first:
+
+    git clone https://github.com/EtchedPixels/Fuzix-Bintools
+    cd Fuzix-Bintools && make && sudo make install
+
+It installs as6800 and ld6800 under /opt/fcc. Make sure /opt/fcc/bin
+is on your PATH. Then:
+
+    make
+    sudo make install
+
+Do not use the bundled as68. It is deprecated and will be removed.
+
+## Notes
+
+- `--start-addr addr` sets the link base address (see #12).
+- 6803, 6303 and mc10 link now, but the output is not tested.
+- lib6303 has only a few routines. Real work should use -m6800.
+
 ----
 ----
 Below is the original README.
