@@ -122,6 +122,7 @@ int targetos;
 int fuzixsub;
 long start_addr = -1;	/* -1: use the target default */
 long zp_addr = -1;	/* -1: use the target default */
+int bin_out;
 char *ProgName;
 
 #define MAXARG	512
@@ -275,6 +276,43 @@ static int target_zp(void)
 	case OS_NONE:
 	default:
 		return 0;
+	}
+}
+
+/*
+ *	The linker writes the image from address zero, so the part before
+ *	the base address is padding. Drop the padding and keep the rest.
+ */
+static void write_bin(void)
+{
+	char *name = extend(target, ".bin");
+	FILE *in, *out;
+	int c;
+
+	if (filesize(target) < target_base()) {
+		fprintf(stderr, "cc: %s is shorter than the base address.\n", target);
+		fatal();
+	}
+	in = fopen(target, "rb");
+	if (in == NULL) {
+		perror(target);
+		fatal();
+	}
+	out = fopen(name, "wb");
+	if (out == NULL) {
+		perror(name);
+		fatal();
+	}
+	if (fseek(in, target_base(), SEEK_SET) < 0) {
+		perror(target);
+		fatal();
+	}
+	while ((c = fgetc(in)) != EOF)
+		fputc(c, out);
+	fclose(in);
+	if (fclose(out) == EOF) {
+		perror(name);
+		fatal();
 	}
 }
 
@@ -600,6 +638,8 @@ void link_phase(void)
 		run_command();
 		break;
 	}
+	if (bin_out)
+		write_bin();
 }
 
 void sequence(struct obj *i)
@@ -683,6 +723,7 @@ void usage()
 	"\n"
 	"Long options:\n"
 	"  --add-source\t\t\tInclude source as comment\n"
+	"  --bin\t\t\t\tWrite the image without the padding before the base\n"
 	"  --bss-name seg\t\tSet the name of the BSS segment\n"
 	"  --check-stack\t\t\tGenerate stack overflow checks\n"
 	"  --code-name seg\t\tSet the name of the CODE segment\n"
@@ -822,6 +863,10 @@ char **longopt(char **ap)
 			fprintf(stderr, "cc: invalid start address '%s'.\n", p);
 			fatal();
 		}
+		return ap;
+	}
+	if (strcmp(p, "bin") == 0) {
+		bin_out = 1;
 		return ap;
 	}
 	if (strcmp(p, "zp-addr") == 0) {
@@ -988,6 +1033,11 @@ int main(int argc, char *argv[])
 			break;
 		}
 		add_system_include(INCPATH);
+	}
+
+	if (bin_out && last_phase != 4) {
+		fprintf(stderr, "cc: --bin needs a link, so it cannot be used with -c, -E or -S.\n");
+		fatal();
 	}
 
 	if (target == NULL)
