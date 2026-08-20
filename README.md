@@ -12,14 +12,24 @@ If you have any requests or suggestions for other CPUs (6303,6803), please let m
 
 You need Fuzix-Bintools first:
 
-    git clone https://github.com/EtchedPixels/Fuzix-Bintools
+    git clone https://codeberg.org/EtchedPixels/Fuzix-Bintools
     cd Fuzix-Bintools && make && sudo make install
 
-It installs as6800 and ld6800 under /opt/fcc. Make sure /opt/fcc/bin
-is on your PATH. Then:
+It installs as6800, ld6800 and nm6809 under /opt/fcc.
+
+You also need Fuzix-Compiler-Kit, which provides lorder6800 and emu6800:
+
+    git clone https://codeberg.org/EtchedPixels/Fuzix-Compiler-Kit
+    cd Fuzix-Compiler-Kit && make && sudo make install
+
+Both install under /opt/fcc by default. Make sure /opt/fcc/bin is on your
+PATH. Then:
 
     make
     sudo make install
+
+"make" runs "make check" first, which reports any tool it cannot find on
+your PATH and names the package it comes from.
 
 The old bundled assembler (as68) has been removed. See #13.
 
@@ -42,8 +52,8 @@ The original project is no longer active, but this repository will continue to m
 # THIS IS NO LONGER AN ACTIVE PROJECT
 
 For the current compiler and tools work please see
-- https://github.com/EtchedPixels/Fuzix-Bintools
-- https://github.com/EtchedPixels/Fuzix-Compiler-Kit
+- https://codeberg.org/EtchedPixels/Fuzix-Bintools
+- https://codeberg.org/EtchedPixels/Fuzix-Compiler-Kit
 
 For a 6800 specific fork of this code under development by Zu2 please see
 - https://github.com/zu2/CC6303
@@ -88,7 +98,7 @@ compile the code with cc68 and then link with a suitable crt.o (entry code)
 
 ````
 cc68 -m6803 -c foo.c
-ld68 -b -C startaddress crt.o mycode.o /opt/cc68/lib/lib6803.a
+ld6800 -b -C startaddress crt.o mycode.o /opt/cc68/lib/lib6803.a
 ````
 
 ## Tandy MC-10 target
