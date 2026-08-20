@@ -701,9 +701,9 @@ void unused_files(void)
 	}
 }
 
-void usage()
+static void help(FILE *fp)
 {
-	fprintf (stderr,"Usage: %s [options] file\n"
+	fprintf (fp, "Usage: %s [options] file\n"
 	"Short options:\n"
 	"  -Dsym[=defn]\t\t\tDefine a symbol\n"
 	"  -E\t\t\t\tStop after the preprocessing stage\n"
@@ -713,12 +713,12 @@ void usage()
 	"  -S\t\t\t\tStop after the compile stage\n"
 	"  -X\t\t\t\tKeep temp\n"
 	"  -c\t\t\t\tStop after the assemble stage\n"
+	"  -h\t\t\t\tShow this help and exit\n"
 	"  -i\t\t\t\t\n"
 	"  -l\t\t\t\tAdd library\n"
 	"  -m{cpu}\t\t\t\tTarget cpu (6800, 6803, 6303)\n"
 	"  -o name\t\t\tName the output file\n"
 	"  -s\t\t\t\tStandalone\n"
-	"  -r\t\t\t\tEnable register variables\n"
 	"  -t sys\t\t\tSet the target system (fuzix, fuzixrel1, fuzixrel2, mc10, flex, bm)\n"
 	"\n"
 	"Long options:\n"
@@ -727,9 +727,9 @@ void usage()
 	"  --bss-name seg\t\tSet the name of the BSS segment\n"
 	"  --check-stack\t\t\tGenerate stack overflow checks\n"
 	"  --code-name seg\t\tSet the name of the CODE segment\n"
-	"  --cpu type\t\t\tSet cpu type (6800, 6803, 6303)\n"
 	"  --data-name seg\t\tSet the name of the DATA segment\n"
 	"  --debug\t\t\tDebug mode\n"
+	"  --help\t\t\tShow this help and exit\n"
 	"  --inline-stdfuncs\t\tInline some standard functions\n"
 	"  --register-space b\t\tSet space available for register variables\n"
 	"  --register-vars\t\tEnable register variables\n"
@@ -741,6 +741,11 @@ void usage()
 	"  --writable-strings\t\tMake string literals writable\n"
 	"  --zp-addr addr\t\tSet the zero page base address (overrides the target default)\n",
 	ProgName);
+}
+
+void usage()
+{
+	help(stderr);
 	fatal();
 }
 
@@ -833,6 +838,7 @@ void uniopt(char *p)
 }
 
 static char *passopts[] = {
+	" add-source",
 	"*bss-name",
 	" check-stack",
 	"*code-name",
@@ -842,7 +848,7 @@ static char *passopts[] = {
 	"*register-space",
 	" register-vars",
 	"*rodata-name",
-	" signed-char",
+	" signed-chars",
 	"*standard",
 	" verbose",
 	" writable-strings",
@@ -853,6 +859,10 @@ char **longopt(char **ap)
 {
 	char *p = *ap + 2;
 	char **x = passopts;
+	if (strcmp(p, "help") == 0) {
+		help(stdout);
+		exit(0);
+	}
 	if (strcmp(p, "start-addr") == 0) {
 		char *e;
 		p = *++ap;
@@ -942,6 +952,10 @@ int main(int argc, char *argv[])
 		case 'D':
 			p = add_macro(p);
 			break;
+		case 'h':
+			uniopt(*p);
+			help(stdout);
+			exit(0);
 		case 'i':
 /*                    split_id();*/
 			uniopt(*p);
