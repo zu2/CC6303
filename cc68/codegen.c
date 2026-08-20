@@ -3550,12 +3550,6 @@ void g_space (int Space, int save_d)
 }
 
 
-void g_cstackcheck (void)
-/* Check for a C stack overflow */
-{
-    AddCodeLine ("jsr cstkchk");
-}
-
 void g_stackcheck (void)
 /* Check for a stack overflow */
 {

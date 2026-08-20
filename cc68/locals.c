@@ -508,9 +508,6 @@ static void ParseOneDecl (const DeclSpec* Spec)
 void DeclareLocals (void)
 /* Declare local variables and types. */
 {
-    /* Remember the current stack pointer */
-    int InitialStack = StackPtr;
-
     /* A place to store info about potential initializations of auto variables */
     CollAppend (&CurrentFunc->LocalsBlockStack, 0);
 
@@ -565,12 +562,5 @@ void DeclareLocals (void)
     /* No auto variables were inited. No new block on the stack then. */
     if (CollLast (&CurrentFunc->LocalsBlockStack) == NULL) {
         CollPop (&CurrentFunc->LocalsBlockStack);
-    }
-
-    /* In case we've allocated local variables in this block, emit a call to
-    ** the stack checking routine if stack checks are enabled.
-    */
-    if (IS_Get (&CheckStack) && InitialStack != StackPtr) {
-        g_cstackcheck ();
     }
 }

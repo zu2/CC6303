@@ -419,9 +419,6 @@ void g_drop (unsigned Space, int save_d);
 void g_space (int space, int save_d);
 /* Create or drop space on the stack */
 
-void g_cstackcheck (void);
-/* Check for a C stack overflow */
-
 void g_stackcheck (void);
 /* Check for a stack overflow */
 
