@@ -18,6 +18,21 @@ void usage(void) {
     exit(1);
 }
 
+static uint16_t check_addr(const char *p) {
+    char *e;
+    long v = strtol(p, &e, 0);
+
+    if (*p == 0 || *e) {
+        fprintf(stderr, "binify: '%s' is not a valid address.\n", p);
+        exit(1);
+    }
+    if (v < 0 || v > 0xFFFF) {
+        fprintf(stderr, "binify: '%s' is out of range.\n", p);
+        exit(1);
+    }
+    return (uint16_t)v;
+}
+
 int main(int argc, char *argv[]) {
     uint16_t start = 0x0100, len = 0x2000, offset = 0;
     uint16_t exec = 0;
@@ -31,17 +46,17 @@ int main(int argc, char *argv[]) {
     while((opt = getopt(argc, argv, "s:l:x:o:")) != -1) {
         switch(opt) {
         case 's':
-            start = atoi(optarg);
+            start = check_addr(optarg);
             break;
         case 'l':
-            len = atoi(optarg);
+            len = check_addr(optarg);
             break;
         case 'x':
-            exec = atoi(optarg);
+            exec = check_addr(optarg);
             setexec = 1;
             break;
         case 'o':
-            offset = atoi(optarg);
+            offset = check_addr(optarg);
             break;
         default:
             usage();

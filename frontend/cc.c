@@ -119,6 +119,7 @@ int targetos;
 #define OS_FLEX		3
 int fuzixsub;
 long start_addr = -1;	/* -1: use the target default */
+long zp_addr = -1;	/* -1: use the target default */
 char *ProgName;
 
 #define MAXARG	512
@@ -220,10 +221,10 @@ static void add_argument(char *p)
 	*argptr++ = p;
 }
 
-static void add_int_argument(int n)
+static void add_hex_argument(int n)
 {
 	char buf[16];
-	snprintf(buf, 16, "%d", n);
+	snprintf(buf, 16, "0x%X", n);
 	return add_argument(xstrdup(buf, 0));
 }
 
@@ -244,6 +245,30 @@ static int target_base(void)
 	case OS_NONE:
 	default:
 		return 256;
+	}
+}
+
+/*
+ *	The base of the zero page area the linker may allocate from. Each
+ *	target has a default, which --zp-addr overrides.
+ */
+static int target_zp(void)
+{
+	if (zp_addr >= 0)
+		return zp_addr;
+	switch(targetos) {
+	case OS_MC10:
+		/* I/O at 0-31 next chunk seem to be used in IRQ*/
+		/* Internal low RAM is 0x80-0xFF, no external low RAM */
+		return 0x90;
+	case OS_FUZIX:
+		return (fuzixsub == 2) ? 2 : 0;
+	case OS_FLEX:
+		/* So we will work on 6303X etc */
+		return 40;
+	case OS_NONE:
+	default:
+		return 0;
 	}
 }
 
@@ -463,43 +488,32 @@ void link_phase(void)
 			case 0:
 				break;
 			case 1:
-				add_argument("-b");
-				add_argument("-C");
-				add_int_argument(target_base());
-				add_argument("-Z");
-				add_argument("0");
-				break;
 			case 2:
 				add_argument("-b");
 				add_argument("-C");
-				add_int_argument(target_base());
+				add_hex_argument(target_base());
 				add_argument("-Z");
-				add_argument("2");
+				add_hex_argument(target_zp());
 				break;
 			}
 			break;
 		case OS_MC10:
-			add_argument("-b");
-			add_argument("-C");
-			add_int_argument(target_base());
-			/* I/O at 0-31 next chunk seem to be used in IRQ*/
-			add_argument("-Z");
-			/* Internal low RAM is 0x80-0xFF, no external low RAM */
-			add_argument("0x90");
-			break;
 		case OS_FLEX:
 			add_argument("-b");
 			add_argument("-C");
-			add_int_argument(target_base());
-			/* So we will work on 6303X etc */
+			add_hex_argument(target_base());
 			add_argument("-Z");
-			add_argument("40");
+			add_hex_argument(target_zp());
 			break;
 		case OS_NONE:
 		default:
 			add_argument("-b");
 			add_argument("-C");
-			add_int_argument(target_base());
+			add_hex_argument(target_base());
+			if (zp_addr >= 0) {
+				add_argument("-Z");
+				add_hex_argument(target_zp());
+			}
 			break;
 	}
 	if (strip)
@@ -551,20 +565,20 @@ void link_phase(void)
 		build_arglist(CMD_TAPEIFY);
 		add_argument(target);
 		add_argument(extend(target, ".c10"));
-		add_int_argument(target_base());
-		add_int_argument(filesize(target) - target_base());
-		add_int_argument(target_base());
+		add_hex_argument(target_base());
+		add_hex_argument(filesize(target) - target_base());
+		add_hex_argument(target_base());
 		run_command();
 		break;
 	case OS_FLEX:
 		/* FLEX */
 		build_arglist(CMD_BINIFY);
 		add_argument("-s");
-		add_int_argument(target_base());
+		add_hex_argument(target_base());
 		add_argument("-l");
-		add_int_argument(filesize(target) - target_base());
+		add_hex_argument(filesize(target) - target_base());
 		add_argument("-x");
-		add_int_argument(target_base());
+		add_hex_argument(target_base());
 		add_argument(target);
 		add_argument(extend(target, ".cmd"));
 		run_command();
@@ -667,7 +681,8 @@ void usage()
 	"  --standard std\t\tLanguage standard (c89, c99, cc65)\n"
 	"  --start-addr addr\t\tSet the link base address (overrides the target default)\n"
 	"  --verbose\t\t\tIncrease verbosity\n"
-	"  --writable-strings\t\tMake string literals writable\n",
+	"  --writable-strings\t\tMake string literals writable\n"
+	"  --zp-addr addr\t\tSet the zero page base address (overrides the target default)\n",
 	ProgName);
 	fatal();
 }
@@ -789,6 +804,18 @@ char **longopt(char **ap)
 		start_addr = strtol(p, &e, 0);
 		if (*e || start_addr < 0 || start_addr > 0xFFFF) {
 			fprintf(stderr, "cc: invalid start address '%s'.\n", p);
+			fatal();
+		}
+		return ap;
+	}
+	if (strcmp(p, "zp-addr") == 0) {
+		char *e;
+		p = *++ap;
+		if (p == NULL)
+			usage();
+		zp_addr = strtol(p, &e, 0);
+		if (*e || zp_addr < 0 || zp_addr > 0xFF) {
+			fprintf(stderr, "cc: invalid zero page address '%s'.\n", p);
 			fatal();
 		}
 		return ap;
