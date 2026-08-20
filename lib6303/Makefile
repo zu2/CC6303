@@ -10,7 +10,7 @@ all: lib6303.a
 
 lib6303.a: $(OBJ)
 	rm -f lib6303.a
-	ar qc lib6303.a `lorderz80 $(OBJ) | tsort`
+	ar qc lib6303.a `lorder6800 $(OBJ) | tsort`
 
 clean:
 	rm -f *.o *.a *~

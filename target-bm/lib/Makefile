@@ -8,10 +8,10 @@ install:
 
 libbm.a: $(OBJ)
 	rm -f libbm.a
-	ar qc libbm.a `lorderz80 $(OBJ) | tsort`
+	ar qc libbm.a `lorder6800 $(OBJ) | tsort`
 
 %.o: %.s
-	/opt/fcc/bin/as6800 $^
+	as6800 $^
 
 clean:
 	rm -f $(OBJ) *~ libbm.a crt0_bm.o

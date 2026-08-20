@@ -14,7 +14,7 @@ all: libc.a $(CRT)
 
 libc.a: $(OBJ)
 	rm -f libc.a
-	ar qc libc.a `lorderz80 $(OBJ) | tsort`
+	ar qc libc.a `lorder6800 $(OBJ) | tsort`
 
 clean:
 	rm -f $(OBJ) $(CRT) libc.a *~

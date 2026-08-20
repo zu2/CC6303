@@ -37,7 +37,7 @@ all: lib6800.a
 
 lib6800.a: $(OBJ)
 	rm -f lib6800.a
-	ar qc lib6800.a `/opt/fcc/bin/lorderz80 $(OBJ) | tsort`
+	ar qc lib6800.a `lorder6800 $(OBJ) | tsort`
 
 clean:
 	rm -f *.o *.a *~

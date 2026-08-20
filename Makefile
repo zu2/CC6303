@@ -1,7 +1,25 @@
 
-all: cc68 copt frontend libc
+all: check cc68 copt frontend libc
 
-.PHONY: cc68 frontend libc copt
+.PHONY: check cc68 frontend libc copt
+
+# lorder6800 runs nm6809
+FUZIXBIN = as6800 ld6800 nm6809
+FUZIXCC  = lorder6800 emu6800
+HOSTBIN  = objcopy dd tsort
+
+check:
+	@fail=; \
+	for t in $(FUZIXBIN); do \
+	  command -v $$t >/dev/null 2>&1 || { echo "Fuzix-Bintools: $$t not found"; fail=1; }; \
+	done; \
+	for t in $(FUZIXCC); do \
+	  command -v $$t >/dev/null 2>&1 || { echo "Fuzix-Compiler-Kit: $$t not found"; fail=1; }; \
+	done; \
+	for t in $(HOSTBIN); do \
+	  command -v $$t >/dev/null 2>&1 || { echo "host: $$t not found"; fail=1; }; \
+	done; \
+	test -z "$$fail"
 
 cc68:
 	+(cd common; make)

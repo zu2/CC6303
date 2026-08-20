@@ -10,7 +10,7 @@ all: libio6800.a
 	../../frontend/cc68 -m6800 -O -c $<
 
 libio6800.a: $(OBJ)
-	ar qc libio6800.a `lorderz80 $(OBJ) | tsort`
+	ar qc libio6800.a `lorder6800 $(OBJ) | tsort`
 
 clean:
 	rm -f $(OBJ) *~ libio6800.a
