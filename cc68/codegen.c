@@ -4926,16 +4926,7 @@ void g_lt (unsigned flags, unsigned long val)
         switch (flags & CF_TYPEMASK) {
             case CF_CHAR:
                 if (flags & CF_FORCECHAR) {
-                    AddCodeLine("tba");
-                    AddCodeLine("pulb");
-                    AddCodeLine("sba");
-                    AddCodeLine("tba");		// TODO: ???
-                    if (flags & CF_UNSIGNED)
-                        AddCodeLine ("jsr boolultc");
-                    else
-                        AddCodeLine ("jsr boolltc");
-                    pop (flags);
-                    return;
+                    Internal ("g_lt: byte wide compare not implemented");
                 }
             case CF_INT:
                 if (CPU != CPU_6800) {
@@ -5073,16 +5064,7 @@ void g_le (unsigned flags, unsigned long val)
         switch (flags & CF_TYPEMASK) {
             case CF_CHAR:
                 if (flags & CF_FORCECHAR) {
-                    AddCodeLine("tba");
-                    AddCodeLine("pulb");
-                    AddCodeLine("sba");
-                    AddCodeLine("tba");
-                    if (flags & CF_UNSIGNED)
-                        AddCodeLine ("jsr boolulec");
-                    else
-                        AddCodeLine ("jsr boollec");
-                    pop (flags);
-                    return;
+                    Internal ("g_le: byte wide compare not implemented");
                 }
             case CF_INT:
                 if (CPU != CPU_6800) {
@@ -5237,16 +5219,7 @@ void g_gt (unsigned flags, unsigned long val)
         switch (flags & CF_TYPEMASK) {
             case CF_CHAR:
                 if (flags & CF_FORCECHAR) {
-                    AddCodeLine("tba");
-                    AddCodeLine("pulb");
-                    AddCodeLine("sba");
-                    AddCodeLine("tba");
-                    if (flags & CF_UNSIGNED)
-                        AddCodeLine ("jsr boolugtc");
-                    else
-                        AddCodeLine ("jsr boolgtc");
-                    pop (flags);
-                    return;
+                    Internal ("g_gt: byte wide compare not implemented");
                 }
             case CF_INT:
                 if (CPU != CPU_6800) {
@@ -5412,16 +5385,7 @@ void g_ge (unsigned flags, unsigned long val)
         switch (flags & CF_TYPEMASK) {
             case CF_CHAR:
                 if (flags & CF_FORCECHAR) {
-                    AddCodeLine("tba");
-                    AddCodeLine("pulb");
-                    AddCodeLine("sba");
-                    AddCodeLine("tba");
-                    if (flags & CF_UNSIGNED)
-                        AddCodeLine ("jsr boolugec");
-                    else
-                        AddCodeLine ("jsr boolgec");
-                    pop (flags);
-                    return;
+                    Internal ("g_ge: byte wide compare not implemented");
                 }
             case CF_INT:
                 if (CPU != CPU_6800) {
