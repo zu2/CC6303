@@ -147,7 +147,6 @@ Short options:
   -X				Keep temp
   -c				Stop after the assemble stage
   -h				Show this help and exit
-  -i				
   -l				Add library
   -m{cpu}				Target cpu (6800, 6803, 6303)
   -o name			Name the output file

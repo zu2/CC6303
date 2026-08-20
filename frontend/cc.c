@@ -714,7 +714,6 @@ static void help(FILE *fp)
 	"  -X\t\t\t\tKeep temp\n"
 	"  -c\t\t\t\tStop after the assemble stage\n"
 	"  -h\t\t\t\tShow this help and exit\n"
-	"  -i\t\t\t\t\n"
 	"  -l\t\t\t\tAdd library\n"
 	"  -m{cpu}\t\t\t\tTarget cpu (6800, 6803, 6303)\n"
 	"  -o name\t\t\tName the output file\n"
@@ -956,10 +955,6 @@ int main(int argc, char *argv[])
 			uniopt(*p);
 			help(stdout);
 			exit(0);
-		case 'i':
-/*                    split_id();*/
-			uniopt(*p);
-			break;
 		case 'o':
 			if (target != NULL) {
 				fprintf(stderr,
