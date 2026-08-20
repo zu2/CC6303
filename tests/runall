@@ -10,9 +10,9 @@ do
 	echo  $b":"
 	cc68 $OPT -m6800 -o $b $b.c 
 	cc68 $OPT -m6800 -S $b.c
-	echo emu6800 -d 6800 $b
-#	emu6800 -d 6800 $b
-	emu6800 6800 $b
+	echo emu6800 -d 6800 $b /dev/null
+#	emu6800 -d 6800 $b /dev/null
+	emu6800 6800 $b /dev/null
 	result=$?
 	echo $result
 	if [ $result -ne 0 ] ; then

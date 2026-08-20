@@ -1,15 +1,12 @@
 
-all: cc68 as68 copt frontend libc
-ll: cc68 copt frontend libc
+all: cc68 copt frontend libc
 
-.PHONY: cc68 as68 frontend libc copt
+.PHONY: cc68 frontend libc copt
 
 cc68:
 	+(cd common; make)
 	+(cd cc68; make)
 
-as68:
-	+(cd as68; make)
 
 copt:
 	+(cd copt; make)
@@ -37,7 +34,6 @@ frontend:
 clean:
 	(cd common; make clean)
 	(cd cc68; make clean)
-	(cd as68; make clean)
 	(cd frontend; make clean)
 	(cd copt; make clean)
 	(cd libc; make clean)
@@ -59,11 +55,6 @@ install:
 	mkdir -p /opt/cc68/include/flex
 	mkdir -p /opt/cc68/include/mc10
 	cp cc68/cc68 /opt/cc68/lib
-#	cp as68/as68 /opt/cc68/bin
-#	cp as68/ld68 /opt/cc68/bin
-#	cp as68/nm68 /opt/cc68/bin
-#	cp as68/osize68 /opt/cc68/bin
-#	cp as68/dumprelocs68 /opt/cc68/bin
 	cp copt/copt /opt/cc68/lib
 	cp copt/killdeadlabel /opt/cc68/lib/killdeadlabel68
 	cp frontend/cc68 /opt/cc68/bin/
