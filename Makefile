@@ -37,6 +37,7 @@ libc:
 	+(cd libio; make)
 	+(cd target-mc10; make)
 	+(cd target-flex; make)
+	+(cd target-bm; make)
 	mkdir -p tmp
 	rm -f tmp/*
 	rm -f lib6800.a
@@ -61,6 +62,7 @@ clean:
 	(cd libio; make clean)
 	(cd target-mc10; make clean)
 	(cd target-flex; make clean)
+	(cd target-bm; make clean)
 	rm -f lib6800.a lib6803.a lib6303.a
 
 #
@@ -72,6 +74,7 @@ install:
 	mkdir -p /opt/cc68/include
 	mkdir -p /opt/cc68/include/flex
 	mkdir -p /opt/cc68/include/mc10
+	mkdir -p /opt/cc68/include/bm
 	cp cc68/cc68 /opt/cc68/lib
 	cp copt/copt /opt/cc68/lib
 	cp copt/killdeadlabel /opt/cc68/lib/killdeadlabel68
@@ -93,3 +96,6 @@ install:
 	cp target-flex/lib/libflex.a /opt/cc68/lib
 	cp target-flex/tools/binify /opt/cc68/lib/flex-binify
 	cp target-flex/include/*.h /opt/cc68/include/flex/
+	cp target-bm/lib/libbm.a /opt/cc68/lib
+	cp target-bm/lib/crt0_bm.o /opt/cc68/lib
+	cp target-bm/include/*.h /opt/cc68/include/bm/

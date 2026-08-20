@@ -2,7 +2,7 @@
 #
 #
 PATH:=/opt/cc68/bin:/opt/fcc/bin:$(PATH)
-ORG=4000
+ORG=2100
 ORGB=$(shell printf '%d' 0x$(ORG))
 
 .SUFFIXES:

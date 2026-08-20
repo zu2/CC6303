@@ -3,7 +3,6 @@
 ;
 
 	.zp
-	.org $00E0
 	.export zero
 	.export one
 	.export tmp
