@@ -77,6 +77,7 @@
 #define CMD_BINIFY 	LIBPATH"flex-binify"
 #define INCFLEX		INCPATH"flex/"
 #define INCMC10		INCPATH"mc10/"
+#define INCBM		INCPATH"bm/"
 
 struct obj {
 	struct obj *next;
@@ -117,6 +118,7 @@ int targetos;
 #define OS_FUZIX	1
 #define OS_MC10		2
 #define OS_FLEX		3
+#define OS_BM		4
 int fuzixsub;
 long start_addr = -1;	/* -1: use the target default */
 long zp_addr = -1;	/* -1: use the target default */
@@ -239,6 +241,8 @@ static int target_base(void)
 	switch(targetos) {
 	case OS_MC10:
 		return 17500;
+	case OS_BM:
+		return 0x2100;
 	case OS_FUZIX:
 		return (fuzixsub == 2) ? 512 : 256;
 	case OS_FLEX:
@@ -261,6 +265,8 @@ static int target_zp(void)
 		/* I/O at 0-31 next chunk seem to be used in IRQ*/
 		/* Internal low RAM is 0x80-0xFF, no external low RAM */
 		return 0x90;
+	case OS_BM:
+		return 0xE2;
 	case OS_FUZIX:
 		return (fuzixsub == 2) ? 2 : 0;
 	case OS_FLEX:
@@ -436,6 +442,9 @@ void convert_c_to_s(char *path)
 	case OS_FLEX: /* FLEX */
 		add_argument("-D__FLEX__");
 		break;
+	case OS_BM:	/* Basic Master */
+		add_argument("-D__BASIC_MASTER__");
+		break;
 	}
 	add_argument_list(NULL, &ccargs);
 	add_argument(path);
@@ -499,6 +508,7 @@ void link_phase(void)
 			break;
 		case OS_MC10:
 		case OS_FLEX:
+		case OS_BM:
 			add_argument("-b");
 			add_argument("-C");
 			add_hex_argument(target_base());
@@ -532,6 +542,8 @@ void link_phase(void)
 		/* Start with crt0.o, end with libc.a and support libraries */
 		if (targetos == OS_MC10)
 			add_argument(CRT0_MC10);
+		else if (targetos == OS_BM)
+			add_argument(CRT0_BM);
 		else	/* For now - we will want one per target */
 			add_argument(CRT0);
 		append_obj(&libpathlist, LIBPATH, 0);
@@ -542,6 +554,10 @@ void link_phase(void)
 		}
 		if (targetos == OS_FLEX) {
 			append_obj(&liblist, LIBFLEX, TYPE_A);
+		}
+		if (targetos == OS_BM) {
+			append_obj(&liblist, LIBIO6800, TYPE_A);
+			append_obj(&liblist, LIBBM, TYPE_A);
 		}
 	}
 	/*
@@ -663,7 +679,7 @@ void usage()
 	"  -o name\t\t\tName the output file\n"
 	"  -s\t\t\t\tStandalone\n"
 	"  -r\t\t\t\tEnable register variables\n"
-	"  -t sys\t\t\tSet the target system (fuzix, fuzixrel1, fuzixrel2, mc10, flex)\n"
+	"  -t sys\t\t\tSet the target system (fuzix, fuzixrel1, fuzixrel2, mc10, flex, bm)\n"
 	"\n"
 	"Long options:\n"
 	"  --add-source\t\t\tInclude source as comment\n"
@@ -917,30 +933,40 @@ int main(int argc, char *argv[])
 		case 'M':
 			mapfile = 1;
 			break;
-		case 't':
-			if (strcmp(*p + 2, "fuzix") == 0) {
+		case 't': {
+			char *sys = *p + 2;
+			if (*sys == 0) {
+				sys = *++p;
+				if (sys == NULL)
+					usage();
+			}
+			if (strcmp(sys, "fuzix") == 0) {
 				targetos = OS_FUZIX;
 				fuzixsub = 0;
 			}
-			else if (strcmp(*p + 2, "fuzixrel1") == 0) {
+			else if (strcmp(sys, "fuzixrel1") == 0) {
 				targetos = OS_FUZIX;
 				fuzixsub = 1;
 			}
-			else if (strcmp(*p + 2, "fuzixrel2") == 0) {
+			else if (strcmp(sys, "fuzixrel2") == 0) {
 				targetos = OS_FUZIX;
 				fuzixsub = 2;
 			}
-			else if (strcmp(*p + 2, "mc10") == 0) {
+			else if (strcmp(sys, "mc10") == 0) {
 				targetos = OS_MC10;
 				cpu = 6803;
-			} else if (strcmp (*p + 2, "flex") == 0) {
+			} else if (strcmp (sys, "flex") == 0) {
 				targetos = OS_FLEX;
 				cpu = 6800;
+			} else if (strcmp (sys, "bm") == 0) {
+				targetos = OS_BM;
+				cpu = 6800;
 			} else {
-				fprintf(stderr, "cc: only flex, fuzix and mc10 target types are known.\n");
+				fprintf(stderr, "cc: only bm, flex, fuzix and mc10 target types are known.\n");
 				fatal();
 			}
 			break;
+		}
 		default:
 			fprintf (stderr,"Unknown option: %s\n", *p);
 			usage();
@@ -956,6 +982,9 @@ int main(int argc, char *argv[])
 			break;
 		case OS_MC10:
 			add_system_include(INCMC10);
+			break;
+		case OS_BM:
+			add_system_include(INCBM);
 			break;
 		}
 		add_system_include(INCPATH);
