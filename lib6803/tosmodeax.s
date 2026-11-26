@@ -11,18 +11,14 @@
 		.code
 
 tosmodeax:
-		; make working space
-		psha
+		tst @sreg
+		bpl nosignfix
+		jsr negeax
+nosignfix:
 		; Arrange stack for the divide helper. TOS is already right
 		; so push the other 4 bytes we need. The divide helper knows
 		; about the fact there is junk (return address) between the
 		; two
-		ldaa @sreg
-		staa @tmp4
-		bpl nosignfix
-		jsr negeax
-nosignfix:
-		pula
 		pshb
 		psha
 		ldx @sreg
@@ -32,6 +28,7 @@ nosignfix:
 		;
 		tsx
 		ldaa 6,x	; sign of TOS
+		staa @tmp4
 		bpl nosignfix2
 		ldd 8,x
 		subd #1
