@@ -159,16 +159,6 @@ void ShiftExpr (struct ExprDesc* Expr)
 
             }
 
-            /* If the shift count is zero, nothing happens */
-            if (Expr2.IVal == 0) {
-
-                /* Result is already in Expr, remove the generated code */
-                RemoveCode (&Mark1);
-
-                /* Done */
-                goto Next;
-            }
-
             /* If the left hand side is a constant, the result is constant */
             if (ED_IsConstAbs (Expr)) {
 
@@ -188,6 +178,10 @@ void ShiftExpr (struct ExprDesc* Expr)
 
                 /* Done */
                 goto Next;
+            }
+
+            if (Expr2.IVal == 0) {
+                goto MakeRVal;
             }
 
             /* For big endian an 8bit shift of an int is just a straight
