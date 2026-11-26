@@ -58,6 +58,8 @@
 
 
 
+long IntConstValue (unsigned long Value, const Type* T);
+
 void TypeConversion (ExprDesc* Expr, Type* NewType);
 /* Do an automatic conversion of the given expression to the new type. Output
 ** warnings or errors where this automatic conversion is suspicious or

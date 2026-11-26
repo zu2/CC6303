@@ -42,6 +42,9 @@
 
 
 
+/* common */
+#include "shift.h"
+
 /* cc65 */
 #include "asmcode.h"
 #include "codegen.h"
@@ -52,6 +55,7 @@
 #include "loadexpr.h"
 #include "scanner.h"
 #include "shiftexpr.h"
+#include "typeconv.h"
 
 
 
@@ -168,11 +172,15 @@ void ShiftExpr (struct ExprDesc* Expr)
             /* If the left hand side is a constant, the result is constant */
             if (ED_IsConstAbs (Expr)) {
 
-                /* Evaluate the result */
-                switch (Tok) {
-                    case TOK_SHL: Expr->IVal <<= Expr2.IVal; break;
-                    case TOK_SHR: Expr->IVal >>= Expr2.IVal; break;
-                    default: /* Shutup gcc */                break;
+                long Value = IntConstValue (Expr->IVal, ResultType);
+                unsigned Count = (unsigned) Expr2.IVal;
+
+                if (Tok == TOK_SHL) {
+                    Expr->IVal = IntConstValue ((unsigned long) Value << Count, ResultType);
+                } else if (GenFlags & CF_UNSIGNED) {
+                    Expr->IVal = (unsigned long) Value >> Count;
+                } else {
+                    Expr->IVal = asr_l (Value, Count);
                 }
 
                 /* Both operands are constant, remove the generated code */

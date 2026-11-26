@@ -15,6 +15,7 @@
 
 
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -198,11 +199,13 @@ void MarkedExprWithCheck (void (*Func) (ExprDesc*), ExprDesc* Expr)
 static Type* promoteint (Type* lhst, Type* rhst)
 /* In an expression with two ints, return the type of the result */
 {
-    /* Rules for integer types:
-    **   - If one of the values is a long, the result is long.
-    **   - If one of the values is unsigned, the result is also unsigned.
-    **   - Otherwise the result is an int.
-    */
+    if (IsTypeShort (lhst)) {
+        lhst = IntPromotion (lhst);
+    }
+    if (IsTypeShort (rhst)) {
+        rhst = IntPromotion (rhst);
+    }
+
     if (IsTypeLong (lhst) && IsTypeLong (rhst)) {
         if (IsSignUnsigned (lhst) || IsSignUnsigned (rhst)) {
             return type_ulong;
@@ -1820,14 +1823,15 @@ static void UnaryOp (ExprDesc* Expr)
     }
 
     /* Check for a constant expression */
-    if (ED_IsConstAbs (Expr) && Tok!=TOK_COMP) {
-        /* Value is constant */
-        switch (Tok) {
-            case TOK_MINUS: Expr->IVal = -Expr->IVal;   break;
-            case TOK_PLUS:                              break;
-            case TOK_COMP:  Expr->IVal = ~Expr->IVal;   break;
-            default:        Internal ("Unexpected token: %d", Tok);
+    if (ED_IsConstAbs (Expr)) {
+        unsigned long Value = Expr->IVal;
+        Expr->Type = IntPromotion (Expr->Type);
+        if (Tok == TOK_MINUS) {
+            Value = 0UL - Value;
+        } else if (Tok == TOK_COMP) {
+            Value = ~Value;
         }
+        Expr->IVal = IntConstValue (Value, Expr->Type);
     } else {
         /* Value is not constant */
         LoadExpr (CF_NONE, Expr);
@@ -2074,89 +2078,52 @@ static void hie_internal (const GenDesc* Ops,   /* List of generators */
 
         /* Check for const operands */
         if (lconst && rconst) {
+            long Left;
+            long Right;
+            unsigned long Value = 0;
 
             /* Both operands are constant, remove the generated code */
             RemoveCode (&Mark1);
 
-            /* Get the type of the result */
             Expr->Type = promoteint (Expr->Type, Expr2.Type);
-
-            /* Handle the op differently for signed and unsigned types */
-            if (IsSignSigned (Expr->Type)) {
-
-                /* Evaluate the result for signed operands */
-                signed long Val1 = Expr->IVal;
-                signed long Val2 = Expr2.IVal;
-                switch (Tok) {
-                    case TOK_OR:
-                        Expr->IVal = (Val1 | Val2);
-                        break;
-                    case TOK_XOR:
-                        Expr->IVal = (Val1 ^ Val2);
-                        break;
-                    case TOK_AND:
-                        Expr->IVal = (Val1 & Val2);
-                        break;
-                    case TOK_STAR:
-                        Expr->IVal = (Val1 * Val2);
-                        break;
-                    case TOK_DIV:
-                        if (Val2 == 0) {
-                            Error ("Division by zero");
-                            Expr->IVal = 0x7FFFFFFF;
-                        } else {
-                            Expr->IVal = (Val1 / Val2);
-                        }
-                        break;
-                    case TOK_MOD:
-                        if (Val2 == 0) {
-                            Error ("Modulo operation with zero");
-                            Expr->IVal = 0;
-                        } else {
-                            Expr->IVal = (Val1 % Val2);
-                        }
-                        break;
-                    default:
-                        Internal ("hie_internal: got token 0x%X\n", Tok);
-                }
-            } else {
-
-                /* Evaluate the result for unsigned operands */
-                unsigned long Val1 = Expr->IVal;
-                unsigned long Val2 = Expr2.IVal;
-                switch (Tok) {
-                    case TOK_OR:
-                        Expr->IVal = (Val1 | Val2);
-                        break;
-                    case TOK_XOR:
-                        Expr->IVal = (Val1 ^ Val2);
-                        break;
-                    case TOK_AND:
-                        Expr->IVal = (Val1 & Val2);
-                        break;
-                    case TOK_STAR:
-                        Expr->IVal = (Val1 * Val2);
-                        break;
-                    case TOK_DIV:
-                        if (Val2 == 0) {
-                            Error ("Division by zero");
-                            Expr->IVal = 0xFFFFFFFF;
-                        } else {
-                            Expr->IVal = (Val1 / Val2);
-                        }
-                        break;
-                    case TOK_MOD:
-                        if (Val2 == 0) {
-                            Error ("Modulo operation with zero");
-                            Expr->IVal = 0;
-                        } else {
-                            Expr->IVal = (Val1 % Val2);
-                        }
-                        break;
-                    default:
-                        Internal ("hie_internal: got token 0x%X\n", Tok);
-                }
+            Left = IntConstValue (Expr->IVal, Expr->Type);
+            Right = IntConstValue (Expr2.IVal, Expr->Type);
+            switch (Tok) {
+                case TOK_OR:
+                    Value = (unsigned long) Left | Right;
+                    break;
+                case TOK_XOR:
+                    Value = (unsigned long) Left ^ Right;
+                    break;
+                case TOK_AND:
+                    Value = (unsigned long) Left & Right;
+                    break;
+                case TOK_STAR:
+                    Value = (unsigned long) Left * Right;
+                    break;
+                case TOK_DIV:
+                    if (Right == 0) {
+                        Error ("Division by zero");
+                        Value = IsSignSigned (Expr->Type) ? 0x7FFFFFFFUL : 0xFFFFFFFFUL;
+                    } else if (IsSignSigned (Expr->Type)) {
+                        Value = (int64_t) Left / Right;
+                    } else {
+                        Value = (unsigned long) Left / (unsigned long) Right;
+                    }
+                    break;
+                case TOK_MOD:
+                    if (Right == 0) {
+                        Error ("Modulo operation with zero");
+                    } else if (IsSignSigned (Expr->Type)) {
+                        Value = (int64_t) Left % Right;
+                    } else {
+                        Value = (unsigned long) Left % (unsigned long) Right;
+                    }
+                    break;
+                default:
+                    Internal ("hie_internal: got token 0x%X\n", Tok);
             }
+            Expr->IVal = IntConstValue (Value, Expr->Type);
 
         } else if (lconst && (Gen->Flags & GEN_COMM) && !rconst) {
 
@@ -2328,6 +2295,10 @@ static void hie_compare (const GenDesc* Ops,    /* List of generators */
 
         /* Check for const operands */
         if (ED_IsConstAbs (Expr) && rconst) {
+            long Left = Expr->IVal;
+            long Right = Expr2.IVal;
+            int BothInt = IsClassInt (Expr->Type) && IsClassInt (Expr2.Type);
+            int Signed = BothInt && IsSignSigned (Expr->Type) && IsSignSigned (Expr2.Type);
 
             /* If the result is constant, this is suspicious when not in
             ** preprocessor mode.
@@ -2337,13 +2308,18 @@ static void hie_compare (const GenDesc* Ops,    /* List of generators */
             /* Both operands are constant, remove the generated code */
             RemoveCode (&Mark1);
 
-            /* Determine if this is a signed or unsigned compare */
-            if (IsClassInt (Expr->Type) && IsSignSigned (Expr->Type) &&
-                IsClassInt (Expr2.Type) && IsSignSigned (Expr2.Type)) {
+            if (BothInt && !Preprocessing) {
+                Type* CommonType = promoteint (Expr->Type, Expr2.Type);
+                Left = IntConstValue (Left, CommonType);
+                Right = IntConstValue (Right, CommonType);
+                Signed = IsSignSigned (CommonType);
+            }
+
+            if (Signed) {
 
                 /* Evaluate the result for signed operands */
-                signed long Val1 = Expr->IVal;
-                signed long Val2 = Expr2.IVal;
+                signed long Val1 = Left;
+                signed long Val2 = Right;
                 switch (Tok) {
                     case TOK_EQ: Expr->IVal = (Val1 == Val2);   break;
                     case TOK_NE: Expr->IVal = (Val1 != Val2);   break;
@@ -2357,8 +2333,8 @@ static void hie_compare (const GenDesc* Ops,    /* List of generators */
             } else {
 
                 /* Evaluate the result for unsigned operands */
-                unsigned long Val1 = Expr->IVal;
-                unsigned long Val2 = Expr2.IVal;
+                unsigned long Val1 = Left;
+                unsigned long Val2 = Right;
                 switch (Tok) {
                     case TOK_EQ: Expr->IVal = (Val1 == Val2);   break;
                     case TOK_NE: Expr->IVal = (Val1 != Val2);   break;
@@ -2631,8 +2607,12 @@ static void parseadd (ExprDesc* Expr)
                 Expr->Type = Expr2.Type;
             } else if (IsClassInt (lhst) && IsClassInt (rhst)) {
                 /* Integer addition */
-                Expr->IVal += Expr2.IVal;
                 typeadjust (Expr, &Expr2, 1);
+                if (ED_IsConstAbs (Expr)) {
+                    Expr->IVal = IntConstValue ((unsigned long) Expr->IVal + Expr2.IVal, Expr->Type);
+                } else {
+                    Expr->IVal += Expr2.IVal;
+                }
             } else {
                 /* OOPS */
                 Error ("Invalid operands for binary operator '+'");
@@ -2898,7 +2878,7 @@ static void parsesub (ExprDesc* Expr)
             } else if (IsClassInt (lhst) && IsClassInt (rhst)) {
                 /* Integer subtraction */
                 typeadjust (Expr, &Expr2, 1);
-                Expr->IVal -= Expr2.IVal;
+                Expr->IVal = IntConstValue ((unsigned long) Expr->IVal - Expr2.IVal, Expr->Type);
             } else {
                 /* OOPS */
                 Error ("Invalid operands for binary operator '-'");

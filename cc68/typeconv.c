@@ -42,9 +42,6 @@
 
 
 
-/* common */
-#include "shift.h"
-
 /* cc65 */
 #include "codegen.h"
 #include "datatype.h"
@@ -52,6 +49,7 @@
 #include "error.h"
 #include "expr.h"
 #include "loadexpr.h"
+#include "preproc.h"
 #include "scanner.h"
 #include "typecmp.h"
 #include "typeconv.h"
@@ -61,6 +59,26 @@
 /*****************************************************************************/
 /*                                   Code                                    */
 /*****************************************************************************/
+
+
+
+long IntConstValue (unsigned long Value, const Type* T)
+{
+    unsigned Bits = CheckedSizeOf (T) * CHAR_BITS;
+    unsigned long Mask;
+
+    /* Keep the host's long width when evaluating #if. */
+    if (Preprocessing || Bits > LONG_BITS) {
+        return (long) Value;
+    }
+
+    Mask = 0xFFFFFFFFUL >> (LONG_BITS - Bits);
+    Value &= Mask;
+    if (IsSignSigned (T) && (Value & (1UL << (Bits - 1)))) {
+        return -1L - (long) (Mask ^ Value);
+    }
+    return (long) Value;
+}
 
 
 
@@ -115,30 +133,8 @@ static void DoConversion (ExprDesc* Expr, const Type* NewType)
 
     } else if (ED_IsLocAbs (Expr)) {
 
-        /* A cast of a constant numeric value to another type. Be sure
-        ** to handle sign extension correctly.
-        */
-
-        /* Get the current and new size of the value */
-        unsigned OldBits = OldSize * 8;
-        unsigned NewBits = NewSize * 8;
-
-        /* Check if the new datatype will have a smaller range. If it
-        ** has a larger range, things are OK, since the value is
-        ** internally already represented by a long.
-        */
-        if (NewBits <= OldBits) {
-
-            /* Cut the value to the new size */
-            Expr->IVal &= (0xFFFFFFFFUL >> (32 - NewBits));
-
-            /* If the new type is signed, sign extend the value */
-            if (IsSignSigned (NewType)) {
-                if (Expr->IVal & (0x01UL << (NewBits-1))) {
-                    /* Beware: Use the safe shift routine here. */
-                    Expr->IVal |= shl_l (~0UL, NewBits);
-                }
-            }
+        if (NewSize <= OldSize || IsClassInt (NewType)) {
+            Expr->IVal = IntConstValue (Expr->IVal, NewType);
         }
 
     } else {
