@@ -1,0 +1,46 @@
+name: Tests
+
+on: [pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test ${{ matrix.cpu }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        cpu: [6800, 6803, 6303]
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install the Fuzix tools
+        run: |
+          cd "$RUNNER_TEMP"
+          git init -q Fuzix-Bintools
+          git -C Fuzix-Bintools fetch --depth=1 https://codeberg.org/EtchedPixels/Fuzix-Bintools.git 4d542cb0cb24ea1f75e4c77e8a754a61548fec9d
+          git -C Fuzix-Bintools checkout -q FETCH_HEAD
+          make -C Fuzix-Bintools as6800 ld6800 nm6809
+
+          git init -q Fuzix-Compiler-Kit
+          git -C Fuzix-Compiler-Kit fetch --depth=1 https://codeberg.org/EtchedPixels/Fuzix-Compiler-Kit.git 7e80ab491629d61748b743d979b9c5bc7b3926d5
+          git -C Fuzix-Compiler-Kit checkout -q FETCH_HEAD
+          make -C Fuzix-Compiler-Kit/test emu6800
+
+          sudo install -d /opt/fcc/bin
+          sudo install -m 755 Fuzix-Bintools/{as6800,ld6800,nm6809} \
+            Fuzix-Compiler-Kit/test/emu6800 /opt/fcc/bin/
+          sudo install -m 755 Fuzix-Compiler-Kit/lorder6809 /opt/fcc/bin/lorder6800
+          echo /opt/fcc/bin >> "$GITHUB_PATH"
+
+      - name: Build and install CC6303
+        run: |
+          make
+          sudo make install
+
+      - name: Run tests
+        working-directory: tests
+        run: ./runall ${{ matrix.cpu }}
