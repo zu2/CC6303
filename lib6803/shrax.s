@@ -72,10 +72,8 @@ shr10e:
 	rts
 
 shrax15:
-	rola
-	ldd @zero
-	bcc ret0
-	coma
-	comb
-ret0:
+	clrb
+	asla
+	rolb
+	clra
 	rts

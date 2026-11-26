@@ -80,12 +80,9 @@ shr10e:
 	lsrb
 	rts
 
-;
-;	There are two possible outputs - 0 and -1 based upon the top bit
-;
 shrax15:
-	rola			; save top bit into C
-	ldaa #0			; clear preserving C
-	ldab #0
-	rolb			; and C into low bit
+	clrb
+	asla
+	rolb
+	clra
 	rts
