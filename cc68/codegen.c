@@ -4243,7 +4243,12 @@ void g_asr (unsigned flags, unsigned long val)
                 }
                 if (val >= 16) {
                     AssignX(0);
-                    LoadD("@sreg", 0);
+                    if (CPU == CPU_6800 && (flags & CF_UNSIGNED) == 0) {
+                        AddCodeLine ("ldab @sreg+1");
+                        AddCodeLine ("ldaa @sreg");
+                    } else {
+                        LoadD("@sreg", 0);
+                    }
                     if ((flags & CF_UNSIGNED) == 0) {
                         unsigned L = GetLocalLabel();
                         AddCodeLine ("bpl %s", LocalLabelName (L));
@@ -4318,10 +4323,10 @@ void g_asl (unsigned flags, unsigned long val)
             case CF_LONG:
                 val &= 0x1F;
                 if (val >= 24) {
-                    AddCodeLine ("stab @sreg+1");
+                    AddCodeLine ("stab @sreg");
                     AddCodeLine ("clrb");
                     AddCodeLine ("clra");
-                    AddCodeLine ("stab @sreg");
+                    AddCodeLine ("stab @sreg+1");
                     val -= 24;
                 }
                 if (val >= 16) {

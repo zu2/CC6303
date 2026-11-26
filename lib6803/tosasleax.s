@@ -14,9 +14,9 @@ tosasleax:
 tosshleax:
 	cmpb	#32
 	bcc	ret0
-	tstb
-	beq noshift
 	tsx
+	tstb
+	beq result
 loop:
 	asl	5,x
 	rol	4,x
@@ -24,14 +24,14 @@ loop:
 	rol	2,x
 	decb
 	bne loop
+result:
 	ldd	2,x
-	; Get the value
 	std	@sreg
 	ldd	4,x
-noshift:
+done:
 	jmp pop4
 ret0:
 	clra
 	clrb
 	std	@sreg
-	bra	noshift
+	bra	done

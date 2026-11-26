@@ -13,7 +13,7 @@ asreax8:
 	staa @sreg+1	; Save the top 8 in the low 8 of sreg
 	cmpa #$80	; Negative ?
 	ldaa #0		; Clear top byte
-	bcc positive
+	bcs positive
 	coma		; Negative so set top byte for arithmetic shift
 positive:
 	staa @sreg	; Save sign bits

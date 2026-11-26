@@ -9,9 +9,9 @@
 tosasreax:	
 	cmpb	#32
 	bcc	ret0
-	tstb
-	beq noshift
 	tsx
+	tstb
+	beq result
 loop:
 	asr	2,x
 	ror	3,x
@@ -19,14 +19,14 @@ loop:
 	ror	5,x
 	decb
 	bne loop
+result:
 	ldd	2,x
-	; Get the value
 	std	@sreg
 	ldd	4,x
-noshift:
+done:
 	jmp pop4
 ret0:
 	clra
 	clrb
 	std	@sreg
-	bra	noshift
+	bra	done
