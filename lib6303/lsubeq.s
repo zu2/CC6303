@@ -1,30 +1,32 @@
-;
-;	On entry X points to the object
-;
 	.code
 	.export lsubeq
 	.export lsubeqa
 	.export lsubeqysp
 	.setcpu 6303
 
-; In this form X is the stack offset. Turn that into X is a pointer and
-; fall into the static form
+; X = S + 3 + X
 lsubeqysp:
 	stx @tmp
 	tsx
 	xgdx
 	addd @tmp
+	addd #2
 	xgdx
+
+; (0-3,x) -= sreg:D
+; sreg:D = (0-3,x)
 lsubeq:
 	std @tmp
-	ldd 4,x		; do the low 16bits
-	subd @tmp
-	std 4,x
 	ldd 2,x
+	subd @tmp
+	std 2,x
+	std @tmp
+	ldd ,x
 	sbcb @sreg+1
 	sbca @sreg
-	std 2,x
-	ldd 4,x
+	std ,x
+	std @sreg
+	ldd @tmp
 	rts
 lsubeqa:
 	clr @sreg
