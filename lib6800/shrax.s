@@ -14,6 +14,7 @@
 	.export shrax5
 	.export shrax4
 	.export shrax3
+	.export shrax2
 
 	.code
 
@@ -32,6 +33,7 @@ shrax4:
 shrax3:
 	lsra
 	rorb
+shrax2:
 	lsra
 	rorb
 	lsra
