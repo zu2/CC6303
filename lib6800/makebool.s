@@ -37,7 +37,7 @@ booleq:
 	tstb
 	bne	ret0
 ret1:
-	clrb
+	clra
 	ldab #1
 	rts
 
