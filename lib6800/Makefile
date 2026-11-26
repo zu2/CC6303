@@ -1,4 +1,4 @@
-OBJ =  asr.o asrax.o asreax.o asreax8.o
+OBJ =  asr.o asrax.o asrax8.o asreax.o asreax8.o
 OBJ += bneg.o compleax.o directpage.o jumpx.o pop2.o pop4.o
 OBJ += ladd.o laddeq.o land.o lbneg.o lcmp.o lucmp.o
 OBJ += leq.o lge.o lgt.o lle.o llt.o lne.o lor.o lsave.o ltest.o
