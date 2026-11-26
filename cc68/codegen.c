@@ -3860,13 +3860,15 @@ void g_div (unsigned flags, unsigned long val)
     if ((flags & CF_CONST) && (p2 = PowerOf2 (val)) >= 0
     &&  (flags & CF_TYPEMASK)==CF_INT) {
         /* Generate a shift instead */
-	unsigned L = GetLocalLabel();
-	unsigned v = val-1;
-	AddCodeLine ("tsta");
-	AddCodeLine ("bpl %s", LocalLabelName (L));
-	AddCodeLine ("addb #<$%04x",v);
-	AddCodeLine ("adca #>$%04x",v);
-    	g_defcodelabel (L);
+        if ((flags & CF_UNSIGNED) == 0) {
+            unsigned L = GetLocalLabel();
+            unsigned v = val - 1;
+            AddCodeLine ("tsta");
+            AddCodeLine ("bpl %s", LocalLabelName (L));
+            AddCodeLine ("addb #<$%04x", v);
+            AddCodeLine ("adca #>$%04x", v);
+            g_defcodelabel (L);
+        }
         g_asr (flags, p2);
     } else {
         /* Generate a division */
