@@ -13,6 +13,7 @@
 	.export shlax5
 	.export shlax4
 	.export shlax3
+	.export shlax2
 
 	.code
 
@@ -31,6 +32,7 @@ shlax4:
 shlax3:
 	lslb
 	rola
+shlax2:
 	lslb
 	rola
 	lslb
