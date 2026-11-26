@@ -1,10 +1,15 @@
 #!/bin/sh
 
+cpu=${1-6800}
+case "$#:$cpu" in
+	0:6800|1:6800|1:6803|1:6303) ;;
+	*)
+		echo "Usage: $0 [6800|6803|6303]" >&2
+		exit 2
+		;;
+esac
+
 for i in [0-9]*.c
 do
-	./onetest $i
-	result=$?
-	if [ $result -ne 0 ] ; then
-		exit $result
-	fi
+	./onetest "-$cpu" "$i" || exit "$?"
 done

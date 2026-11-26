@@ -4,19 +4,34 @@ PATH=/opt/cc68/bin:/opt/fcc/bin:$PATH
 #OPT=-O3
 OPT=
 
-b=$(basename $1 .c)
-echo  $b":"
-cc68 $OPT -m6800 -o $b $b.c 
-err=$?
-cc68 $OPT -m6800 -S $b.c
-if [ $err -ne 0 ] ; then
-	echo $err
-	rm -f $b $b.o $b.s
-	exit $err
+cpu=6800
+case "${1-}" in
+	-6800|-6803|-6303) cpu=${1#-}; shift ;;
+esac
+if [ "$#" -ne 1 ] || [ "${1#-}" != "$1" ]; then
+	echo "Usage: $0 [-6800|-6803|-6303] file.c" >&2
+	exit 2
 fi
-echo emu6800 -d 6800 $b /dev/null
-#emu6800 -d 6800 $b /dev/null
-emu6800 6800 $b /dev/null
+
+b=$(basename "$1" .c)
+set -- "-m$cpu"
+if [ "$cpu" != 6800 ]; then
+	# Keep runtime data out of the emulated CPU's I/O registers.
+	set -- "$@" --zp-addr 0x80
+fi
+
+echo "$b:"
+cc68 $OPT "$@" -o "$b" "$b.c"
+err=$?
+cc68 $OPT "$@" -S "$b.c"
+if [ "$err" -ne 0 ]; then
+	echo "$err"
+	rm -f "$b" "$b.o" "$b.s"
+	exit "$err"
+fi
+echo emu6800 "$cpu" "$b" /dev/null
+#emu6800 -d "$cpu" "$b" /dev/null
+emu6800 "$cpu" "$b" /dev/null
 result=$?
-echo $result
-exit $result
+echo "$result"
+exit "$result"
