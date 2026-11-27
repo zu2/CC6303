@@ -10,8 +10,8 @@ tosleeax:
 	tsx
 	ldaa 2,x
 	cmpa @sreg
-	blt  false
-	bgt  true
+	blt  true
+	bgt  false
 	ldab 3,x
 	cmpb @sreg+1
 	bne  found
@@ -20,6 +20,6 @@ tosleeax:
 	bne  found
 	ldab 5,x
 	cmpb @tmp+1
-found:	bcs true
+found:	bls true
 false:	jmp false4
 true:	jmp true4
