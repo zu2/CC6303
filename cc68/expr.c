@@ -3391,14 +3391,15 @@ static void hieQuest (ExprDesc* Expr)
 
 
     /* Call the lower level eval routine */
-    if (Preprocessing) {
-        ExprWithCheck (hieOrPP, Expr);
-    } else {
-        ExprWithCheck (hieOr, Expr);
-    }
+    MarkedExprWithCheck (Preprocessing ? hieOrPP : hieOr, Expr);
 
     /* Check if it's a ternary expression */
     if (CurTok.Tok == TOK_QUEST) {
+        int AllConst = ED_IsConstAbsInt (Expr) && ED_CodeRangeIsEmpty (Expr);
+        int TakeTrue = AllConst && Expr->IVal != 0;
+        int SavedSkip = PPSkipEval;
+        long Value2;
+
         NextToken ();
         if (!ED_IsTested (Expr)) {
             /* Condition codes not set, request a test */
@@ -3411,7 +3412,11 @@ static void hieQuest (ExprDesc* Expr)
         /* Parse second expression. Remember for later if it is a NULL pointer
         ** expression, then load it into the primary.
         */
-        ExprWithCheck (hie1, &Expr2);
+        PPSkipEval = SavedSkip || (Preprocessing && !TakeTrue);
+        MarkedExprWithCheck (hie1, &Expr2);
+        PPSkipEval = SavedSkip;
+        AllConst = AllConst && ED_IsConstAbsInt (&Expr2) && ED_CodeRangeIsEmpty (&Expr2);
+        Value2 = AllConst ? Expr2.IVal : 0;
         Expr2IsNULL = ED_IsNullPtr (&Expr2);
         if (!IsTypeVoid (Expr2.Type)) {
             /* Load it into the primary */
@@ -3434,7 +3439,23 @@ static void hieQuest (ExprDesc* Expr)
         /* Parse third expression. Remember for later if it is a NULL pointer
         ** expression, then load it into the primary.
         */
-        ExprWithCheck (hie1, &Expr3);
+        PPSkipEval = SavedSkip || (Preprocessing && TakeTrue);
+        MarkedExprWithCheck (Preprocessing ? hieQuest : hie1, &Expr3);
+        PPSkipEval = SavedSkip;
+        if (AllConst && ED_IsConstAbsInt (&Expr3) && ED_CodeRangeIsEmpty (&Expr3)) {
+            long Value = TakeTrue ? Value2 : Expr3.IVal;
+
+            if (Preprocessing) {
+                /* #if uses the same width for signed and unsigned integers. */
+                ResultType = IsSignUnsigned (Expr2.Type) || IsSignUnsigned (Expr3.Type)
+                             ? type_ulong : type_long;
+            } else {
+                ResultType = promoteint (Expr2.Type, Expr3.Type);
+            }
+            RemoveCode (&Expr->Start);
+            ED_MakeConstAbs (Expr, IntConstValue (Value, ResultType), ResultType);
+            return;
+        }
         Expr3IsNULL = ED_IsNullPtr (&Expr3);
         if (!IsTypeVoid (Expr3.Type)) {
             /* Load it into the primary */
