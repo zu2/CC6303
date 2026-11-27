@@ -5651,6 +5651,7 @@ void g_switch (Collection* Nodes, unsigned DefaultLabel, unsigned Depth)
 
     /* Setup registers and determine which compare insn to use */
     const char* Compare;
+    const char* Load = NULL;
     switch (Depth) {
         case 1:
             Compare = "cmpb #$%02X";
@@ -5659,13 +5660,11 @@ void g_switch (Collection* Nodes, unsigned DefaultLabel, unsigned Depth)
             Compare = "cmpa #$%02X";
             break;
         case 3:
-            AddCodeLine ("psha");
-            AddCodeLine ("ldaa @sreg+1");
+            Load = "ldaa @sreg+1";
             Compare = "cmpa #$%02X";
             break;
         case 4:
-            AddCodeLine ("psha");
-            AddCodeLine ("ldaa @sreg");
+            Load = "ldaa @sreg";
             Compare = "cmpa #$%02X";
             break;
         default:
@@ -5685,9 +5684,13 @@ void g_switch (Collection* Nodes, unsigned DefaultLabel, unsigned Depth)
         }
 
         /* Do the compare */
+        if (Load) {
+            AddCodeLine ("psha");
+            AddCodeLine ("%s", Load);
+        }
         AddCodeLine (Compare, CN_GetValue (N));
-        if (Depth > 2)
-            AddCodeLine("pula");
+        if (Load)
+            AddCodeLine ("pula");
 
         /* If this is the last level, jump directly to the case code if found */
         if (Depth == 1) {
