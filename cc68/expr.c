@@ -200,6 +200,12 @@ void MarkedExprWithCheck (void (*Func) (ExprDesc*), ExprDesc* Expr)
 static Type* promoteint (Type* lhst, Type* rhst)
 /* In an expression with two ints, return the type of the result */
 {
+    if (Preprocessing) {
+        /* #if uses the same width for signed and unsigned integers. */
+        return IsSignUnsigned (lhst) || IsSignUnsigned (rhst)
+               ? type_ulong : type_long;
+    }
+
     if (IsTypeShort (lhst) || IsTypeBool (lhst)) {
         lhst = IntPromotion (lhst);
     }
@@ -3445,13 +3451,7 @@ static void hieQuest (ExprDesc* Expr)
         if (AllConst && ED_IsConstAbsInt (&Expr3) && ED_CodeRangeIsEmpty (&Expr3)) {
             long Value = TakeTrue ? Value2 : Expr3.IVal;
 
-            if (Preprocessing) {
-                /* #if uses the same width for signed and unsigned integers. */
-                ResultType = IsSignUnsigned (Expr2.Type) || IsSignUnsigned (Expr3.Type)
-                             ? type_ulong : type_long;
-            } else {
-                ResultType = promoteint (Expr2.Type, Expr3.Type);
-            }
+            ResultType = promoteint (Expr2.Type, Expr3.Type);
             RemoveCode (&Expr->Start);
             ED_MakeConstAbs (Expr, IntConstValue (Value, ResultType), ResultType);
             return;
