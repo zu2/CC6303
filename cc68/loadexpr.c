@@ -210,6 +210,12 @@ void LoadExpr (unsigned Flags, struct ExprDesc* Expr)
 /* Load an expression into the primary register if it is not already there. */
 {
     if (ED_IsLVal (Expr) || ED_IsIndirectRVal (Expr)) {
+        if (IsClassStruct (Expr->Type) && SizeOf (Expr->Type) == 3) {
+            LoadAddr (Expr);
+            g_getind (CF_STRUCT3, 0);
+            ED_TestDone (Expr);
+            return;
+        }
 
         /* Dereferenced lvalue. If this is a bit field its type is unsigned.
         ** But if the field is completely contained in the lower byte, we will

@@ -139,6 +139,8 @@ void Assignment (ExprDesc* Expr)
             ED_MakeRValExpr (Expr);
             Expr->Flags |= E_RTYPE_INDIRECT;
             return;
+        } else if (Size == 3) {
+            g_putind (CF_STRUCT3, 0);
         } else {
             Error ("Structs of this size are not supported");
             pop (CF_PTR);

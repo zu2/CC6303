@@ -1177,8 +1177,8 @@ static unsigned MakeByteOffs (unsigned Flags, unsigned Offs)
 ** offset fits into an index register. Return the remaining offset.
 */
 {
-    /* For many cases 257 is ok because we work on words and 255,x is good */
-    if (Offs <= 256 - sizeofarg (Flags))
+    unsigned Size = (Flags & CF_TYPEMASK) == CF_STRUCT3 ? 3 : sizeofarg (Flags);
+    if (Offs <= 256 - Size)
         return Offs;
     AddDConst(Offs);
     return 0;
@@ -1633,6 +1633,13 @@ void g_getind (unsigned Flags, unsigned Offs)
                 g_test (Flags);
             break;
 
+        case CF_STRUCT3:
+            DToX();
+            AddCodeLine("ldab $%02X,x", Offs);
+            AddCodeLine("stab @sreg+1");
+            LoadDViaX(Offs + 1);
+            break;
+
         case CF_LONG:
             DToX();
             LoadDViaX(Offs);
@@ -1851,10 +1858,11 @@ void g_putind (unsigned Flags, unsigned Offs)
     if (CPU == CPU_6800)
         viaabx = 0;	/* No ABX instruction */
 
-    if ((Flags & CF_TYPEMASK) == CF_LONG)
+    if ((Flags & CF_TYPEMASK) == CF_LONG ||
+        (Flags & CF_TYPEMASK) == CF_STRUCT3)
         size -= 2;
 
-    /* For 0-255 (0-253 for long) range we can just use n,X */
+    /* A store that uses n+2,X starts at 253,X or below. */
     if (Offs < size)
         PullX(1);
     /* For 254 and long we need to inx first so n+2 is in range */
@@ -1923,6 +1931,14 @@ void g_putind (unsigned Flags, unsigned Offs)
 
         case CF_INT:
             StoreDViaX(Offs);
+            break;
+
+        case CF_STRUCT3:
+            StoreDViaX(Offs + 1);
+            AddCodeLine("psha");
+            AddCodeLine("ldaa @sreg+1");
+            AddCodeLine("staa $%02X,x", Offs);
+            AddCodeLine("pula");
             break;
 
         /* Storing a long is messy because we need to recover D afterwards

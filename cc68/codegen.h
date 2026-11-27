@@ -76,6 +76,7 @@
 #define CF_PTR          CF_INT  /* Alias for readability */
 #define CF_LONG         0x0000  /* Operation on longs */
 #define CF_FLOAT        0x0004  /* Operation on a float */
+#define CF_STRUCT3      0x0002  /* Indirect load/store of @sreg+1:A:B */
 
 /* Signedness */
 #define CF_UNSIGNED     0x0008  /* Value is unsigned */

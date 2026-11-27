@@ -398,13 +398,9 @@ void NewFunc (SymEntry* Func)
     /* Function body now defined */
     Func->Flags |= SC_DEF;
 
-    /* Only structs that fit into the primary can be returned. The same size
-    ** rule is spelled out in assignment.c and expr.c, drop these copies once
-    ** we gain a GetStructReplacementType() like cc65 has.
-    */
     if (IsClassStruct (F_GetReturnType (CurrentFunc))) {
         unsigned Size = SizeOf (F_GetReturnType (CurrentFunc));
-        if (Size != 1 && Size != 2 && Size != 4) {
+        if (Size == 0 || Size > SIZEOF_LONG) {
             Error ("Function return type of size %u is unsupported", Size);
         }
     }

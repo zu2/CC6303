@@ -512,6 +512,7 @@ static void FunctionCall (ExprDesc* Expr)
 /* Perform a function call. */
 {
     FuncDesc*     Func;           /* Function descriptor */
+    Type*         ReturnType;
     int           IsFuncPtr;      /* Flag */
     unsigned      ParamSize;      /* Number of parameter bytes */
     CodeMark      Mark;
@@ -524,6 +525,7 @@ static void FunctionCall (ExprDesc* Expr)
 
     /* Get a pointer to the function descriptor from the type string */
     Func = GetFuncDesc (Expr->Type);
+    ReturnType = GetFuncReturn (Expr->Type);
 
     /* Handle function pointers transparently */
     IsFuncPtr = IsTypeFuncPtr (Expr->Type);
@@ -578,9 +580,7 @@ static void FunctionCall (ExprDesc* Expr)
     /* We need the closing paren here */
     ConsumeRParen ();
 
-    NotVoid = 0;
-
-    /* FIXME: how to get the Func and void flag ? !F_HasVoidReturn(Func); */
+    NotVoid = !IsTypeVoid (ReturnType);
 
     /* Special handling for function pointers */
     if (IsFuncPtr) {
@@ -617,9 +617,6 @@ static void FunctionCall (ExprDesc* Expr)
             pop (CF_PTR);
         }
 
-        /* Skip T_PTR */
-        ++Expr->Type;
-
     } else {
         /* Normal function */
         g_call (TypeOf (Expr->Type), (const char*) Expr->Name, ParamSize - Func->ParamSize);
@@ -631,9 +628,15 @@ static void FunctionCall (ExprDesc* Expr)
     /* FIXME: optimization - it would be worth tracking how many arguments
        we have accumulated to clean up - to say 16 bytes and then fix it
        once ? but need to deal with branches if do so */
-    /* The function result is an rvalue in the primary register */
     ED_MakeRValExpr (Expr);
-    Expr->Type = GetFuncReturn (Expr->Type);
+    Expr->Type = ReturnType;
+    if (IsClassStruct (ReturnType)) {
+        unsigned Size = SizeOf (ReturnType);
+        if (Size == 0 || Size > SIZEOF_LONG) {
+            Error ("Function return type of size %u is unsupported", Size);
+            ED_MakeConstAbs (Expr, 0, ReturnType);
+        }
+    }
 }
 
 
