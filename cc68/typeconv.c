@@ -107,6 +107,23 @@ static void DoConversion (ExprDesc* Expr, const Type* NewType)
         goto ExitPoint;
     }
 
+    if (IsTypeBool (NewType) && !IsTypeBool (OldType)) {
+        if (IsClassFloat (OldType) && ED_IsConstAbs (Expr)) {
+            ED_MakeConstAbsInt (Expr, FP_D_ToFloat (Expr->FVal) != 0.0);
+        } else if (!IsClassInt (OldType) && !IsTypePtr (OldType)) {
+            Error ("Cannot convert to '_Bool'");
+        } else if (ED_IsConstAbs (Expr)) {
+            Expr->IVal = (Expr->IVal != 0);
+        } else if (IsTypePtr (OldType) && ED_IsConst (Expr)) {
+            ED_MakeConstAbsInt (Expr, 1);
+        } else {
+            LoadExpr (CF_NONE, Expr);
+            g_bool (TypeOf (OldType));
+            ED_MakeRValExpr (Expr);
+        }
+        goto ExitPoint;
+    }
+
     /* Get the sizes of the types. Since we've excluded void types, checking
     ** for known sizes makes sense here.
     */
@@ -207,7 +224,9 @@ void TypeConversion (ExprDesc* Expr, Type* NewType)
             if (IsTypeArray (Expr->Type)) {
                 Expr->Type = ArrayToPtr (Expr->Type);
             }
-            Warning ("Converting pointer to integer without a cast");
+            if (!IsTypeBool (NewType)) {
+                Warning ("Converting pointer to integer without a cast");
+            }
         } else if (!IsClassInt (Expr->Type) && !IsClassFloat (Expr->Type)) {
             Error ("Incompatible types");
         }

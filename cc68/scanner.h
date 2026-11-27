@@ -91,6 +91,7 @@ typedef enum token_t {
     /* Tokens denoting types */
     TOK_FIRST_TYPE,
     TOK_ENUM            = TOK_FIRST_TYPE,
+    TOK_BOOL,
     TOK_CHAR,
     TOK_INT,
     TOK_DOUBLE,

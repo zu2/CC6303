@@ -263,10 +263,15 @@ void PrintType (FILE* F, const Type* T)
         if ((C & T_MASK_TYPE) != T_TYPE_INT && (C & T_MASK_TYPE) != T_TYPE_LONG) {
             C = PrintTypeComp (F, C, T_SIGN_SIGNED, "signed");
         }
-        C = PrintTypeComp (F, C, T_SIGN_UNSIGNED, "unsigned");
+        if ((C & T_MASK_TYPE) != T_TYPE_BOOL) {
+            C = PrintTypeComp (F, C, T_SIGN_UNSIGNED, "unsigned");
+        }
 
         /* Now check the real type */
         switch (C & T_MASK_TYPE) {
+            case T_TYPE_BOOL:
+                fprintf (F, "_Bool");
+                break;
             case T_TYPE_CHAR:
                 fprintf (F, "char");
                 break;
@@ -404,6 +409,7 @@ unsigned SizeOf (const Type* T)
 
         case T_SCHAR:
         case T_UCHAR:
+        case T_BOOL:
             return SIZEOF_CHAR;
 
         case T_SHORT:
@@ -508,6 +514,7 @@ unsigned TypeOf (const Type* T)
             return CF_CHAR;
 
         case T_UCHAR:
+        case T_BOOL:
             return CF_CHAR | CF_UNSIGNED;
 
         case T_SHORT:
@@ -707,7 +714,7 @@ Type* IntPromotion (Type* T)
     /* We must have an int to apply int promotions */
     PRECONDITION (IsClassInt (T));
 
-    if (IsTypeChar (T)) {
+    if (IsTypeChar (T) || IsTypeBool (T)) {
         return type_int;
     } else if (IsTypeShort (T)) {
         return IsSignUnsigned (T) ? type_uint : type_int;

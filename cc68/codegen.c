@@ -4424,6 +4424,15 @@ void g_neg (unsigned Flags)
 
 
 
+void g_bool (unsigned flags)
+/* Primary = (Primary != 0), with a full-width result in D. */
+{
+    g_test (flags | CF_FORCECHAR);
+    AddCodeLine ("jsr boolnec");
+}
+
+
+
 void g_bneg (unsigned flags)
 /* Primary = !Primary */
 {

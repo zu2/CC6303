@@ -114,7 +114,7 @@ int CanLoadViaX(unsigned Flags, struct ExprDesc *Expr)
     if ((Flags & CF_TYPEMASK) == CF_CHAR || (Flags & CF_FORCECHAR)) {
         return 0;
     }
-    if (IsTypeChar(Expr->Type)) {
+    if (IsTypeChar(Expr->Type) || IsTypeBool(Expr->Type)) {
         //AddCodeLine("; target type char\n");
         return 0;
     }

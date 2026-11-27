@@ -435,6 +435,7 @@ void g_asr (unsigned flags, unsigned long val);
 void g_asl (unsigned flags, unsigned long val);
 void g_neg (unsigned flags);
 void g_bneg (unsigned flags);
+void g_bool (unsigned flags);
 void g_com (unsigned flags);
 void g_inc (unsigned flags, unsigned long n);
 void g_dec (unsigned flags, unsigned long n);

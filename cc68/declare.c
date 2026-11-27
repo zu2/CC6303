@@ -892,6 +892,12 @@ static void ParseTypeSpec (DeclSpec* D, long Default, TypeCode Qualifiers)
             D->Type[1].C = T_END;
             break;
 
+        case TOK_BOOL:
+            NextToken ();
+            D->Type[0].C = T_BOOL;
+            D->Type[1].C = T_END;
+            break;
+
         case TOK_CHAR:
             NextToken ();
             D->Type[0].C = GetDefaultChar();
@@ -2121,6 +2127,7 @@ static unsigned ParseVoidInit (Type* T)
 
             case T_SCHAR:
             case T_UCHAR:
+            case T_BOOL:
                 if (ED_IsConstAbsInt (&Expr)) {
                     /* Make it byte sized */
                     Expr.IVal &= 0xFF;
@@ -2185,6 +2192,7 @@ static unsigned ParseInitInternal (Type* T, int AllowFlexibleMembers)
 
         case T_SCHAR:
         case T_UCHAR:
+        case T_BOOL:
         case T_SHORT:
         case T_USHORT:
         case T_INT:

@@ -199,10 +199,10 @@ void MarkedExprWithCheck (void (*Func) (ExprDesc*), ExprDesc* Expr)
 static Type* promoteint (Type* lhst, Type* rhst)
 /* In an expression with two ints, return the type of the result */
 {
-    if (IsTypeShort (lhst)) {
+    if (IsTypeShort (lhst) || IsTypeBool (lhst)) {
         lhst = IntPromotion (lhst);
     }
-    if (IsTypeShort (rhst)) {
+    if (IsTypeShort (rhst) || IsTypeBool (rhst)) {
         rhst = IntPromotion (rhst);
     }
 
@@ -233,6 +233,14 @@ static Type* promoteint (Type* lhst, Type* rhst)
 
 
 
+static unsigned ArithmeticTypeOf (const Type* T)
+/* A _Bool loaded for arithmetic is already zero-extended. */
+{
+    return IsTypeBool (T) ? CF_INT : TypeOf (T);
+}
+
+
+
 static unsigned typeadjust (ExprDesc* lhs, ExprDesc* rhs, int NoPush)
 /* Adjust the two values for a binary operation. lhs is expected on stack or
 ** to be constant, rhs is expected to be in the primary register or constant.
@@ -251,7 +259,7 @@ static unsigned typeadjust (ExprDesc* lhs, ExprDesc* rhs, int NoPush)
     Type* rhst = rhs->Type;
 
     /* Generate type adjustment code if needed */
-    ltype = TypeOf (lhst);
+    ltype = ArithmeticTypeOf (lhst);
     if (ED_IsLocAbs (lhs)) {
         ltype |= CF_CONST;
     }
@@ -259,7 +267,7 @@ static unsigned typeadjust (ExprDesc* lhs, ExprDesc* rhs, int NoPush)
         /* Value is in primary register*/
         ltype |= CF_REG;
     }
-    rtype = TypeOf (rhst);
+    rtype = ArithmeticTypeOf (rhst);
     if (ED_IsLocAbs (rhs)) {
         rtype |= CF_CONST;
     }
@@ -1497,6 +1505,29 @@ void StoreX (ExprDesc* Expr, const Type* StoreType)
 
 
 
+static void IncDecBool (ExprDesc* Expr, int Increment, int Post)
+{
+    unsigned Flags = CF_CHAR | CF_FORCECHAR | CF_CONST;
+
+    PushAddr (Expr);
+    LoadExpr (CF_NONE, Expr);
+    if (Post) {
+        g_save (CF_INT);
+    }
+    if (Increment) {
+        g_or (Flags, 1);
+    } else {
+        g_xor (Flags, 1);
+    }
+    Store (Expr, 0);
+    if (Post) {
+        g_restore (CF_INT);
+    }
+    ED_MakeRValExpr (Expr);
+}
+
+
+
 static void PreInc (ExprDesc* Expr)
 /* Handle the preincrement operators */
 {
@@ -1516,6 +1547,11 @@ static void PreInc (ExprDesc* Expr)
     /* We cannot modify const values */
     if (IsQualConst (Expr->Type)) {
         Error ("Increment of read-only variable");
+    }
+
+    if (IsTypeBool (Expr->Type)) {
+        IncDecBool (Expr, 1, 0);
+        return;
     }
 
     /* Get the data type */
@@ -1592,6 +1628,11 @@ static void PreDec (ExprDesc* Expr)
     /* We cannot modify const values */
     if (IsQualConst (Expr->Type)) {
         Error ("Decrement of read-only variable");
+    }
+
+    if (IsTypeBool (Expr->Type)) {
+        IncDecBool (Expr, 0, 0);
+        return;
     }
 
     /* Get the data type */
@@ -1684,6 +1725,11 @@ static void PostInc (ExprDesc* Expr)
         Error ("Increment of read-only variable");
     }
 
+    if (IsTypeBool (Expr->Type)) {
+        IncDecBool (Expr, 1, 1);
+        return;
+    }
+
     /* Get the data type */
     Flags = TypeOf (Expr->Type);
 
@@ -1752,6 +1798,11 @@ static void PostDec (ExprDesc* Expr)
     /* We cannot modify const values */
     if (IsQualConst (Expr->Type)) {
         Error ("Decrement of read-only variable");
+    }
+
+    if (IsTypeBool (Expr->Type)) {
+        IncDecBool (Expr, 0, 1);
+        return;
     }
 
     /* Get the data type */
@@ -2043,7 +2094,7 @@ static void hie_internal (const GenDesc* Ops,   /* List of generators */
 
         /* Get the lhs on stack */
         GetCodePos (&Mark1);
-        ltype = TypeOf (Expr->Type);
+        ltype = ArithmeticTypeOf (Expr->Type);
         lconst = ED_IsConstAbs (Expr);
         if (lconst) {
             /* Constant value */
@@ -2133,7 +2184,7 @@ static void hie_internal (const GenDesc* Ops,   /* List of generators */
             ** operation because this allows for better code.
             */
             unsigned rtype = ltype | CF_CONST;
-            ltype = TypeOf (Expr2.Type);       /* Expr2 is now left */
+            ltype = ArithmeticTypeOf (Expr2.Type); /* Expr2 is now left */
             type = CF_CONST;
             if ((Gen->Flags & GEN_NOPUSH) == 0) {
                 g_push (ltype, 0);
@@ -2157,7 +2208,7 @@ static void hie_internal (const GenDesc* Ops,   /* List of generators */
             ** expects the lhs in the primary, remove the push of the primary
             ** now.
             */
-            unsigned rtype = TypeOf (Expr2.Type);
+            unsigned rtype = ArithmeticTypeOf (Expr2.Type);
             type = 0;
             if (rconst) {
                 /* Second value is constant - check for div */
@@ -2223,7 +2274,7 @@ static void hie_compare (const GenDesc* Ops,    /* List of generators */
 
         /* Get the lhs on stack */
         GetCodePos (&Mark1);
-        ltype = TypeOf (Expr->Type);
+        ltype = ArithmeticTypeOf (Expr->Type);
         if (ED_IsConstAbs (Expr)) {
             /* Constant value */
             GetCodePos (&Mark2);
@@ -2476,7 +2527,7 @@ static void hie_compare (const GenDesc* Ops,    /* List of generators */
                     flags |= CF_UNSIGNED;
                 }
             } else {
-                unsigned rtype = TypeOf (Expr2.Type) | (flags & CF_CONST);
+                unsigned rtype = ArithmeticTypeOf (Expr2.Type) | (flags & CF_CONST);
                 flags |= g_typeadjust (ltype, rtype);
             }
 
@@ -3425,7 +3476,7 @@ static void opeq (const GenDesc* Gen, ExprDesc* Expr, const char* Op)
     NextToken ();
 
     /* Determine the type of the lhs */
-    flags = TypeOf (Expr->Type);
+    flags = ArithmeticTypeOf (Expr->Type);
     MustScale = (Gen->Func == g_add || Gen->Func == g_sub) && IsTypePtr (Expr->Type);
 
     /* Get the lhs address on stack (if needed) */
@@ -3449,8 +3500,15 @@ static void opeq (const GenDesc* Gen, ExprDesc* Expr, const char* Op)
         */
     }
 
-    /* Check for a constant expression */
-    if (ED_IsConstAbs (&Expr2) && ED_CodeRangeIsEmpty (&Expr2)) {
+    if (IsTypeBool (Expr->Type)) {
+        /* Do the operation on the promoted values before converting back. */
+        LoadExpr (CF_NONE, &Expr2);
+        if (Gen->Func != g_asl && Gen->Func != g_asr) {
+            flags = g_typeadjust (flags, ArithmeticTypeOf (Expr2.Type));
+        }
+        Gen->Func (flags, 0);
+        g_bool (flags);
+    } else if (ED_IsConstAbs (&Expr2) && ED_CodeRangeIsEmpty (&Expr2)) {
         /* The resulting value is a constant. If the generator has the NOPUSH
         ** flag set, don't push the lhs.
         */
@@ -3530,7 +3588,8 @@ static void addsubeq (const GenDesc* Gen, ExprDesc *Expr, const char* Op)
 
 
     /* We're currently only able to handle some adressing modes */
-    if (ED_GetLoc (Expr) == E_LOC_EXPR || ED_GetLoc (Expr) == E_LOC_PRIMARY) {
+    if (IsTypeBool (Expr->Type) ||
+        ED_GetLoc (Expr) == E_LOC_EXPR || ED_GetLoc (Expr) == E_LOC_PRIMARY) {
         /* Use generic routine */
         opeq (Gen, Expr, Op);
         return;

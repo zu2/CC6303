@@ -119,6 +119,8 @@ void SwitchStatement (void)
         Error ("Switch quantity is not an integer");
         /* To avoid any compiler errors, make the expression a valid int */
         ED_MakeConstAbsInt (&SwitchExpr, 1);
+    } else if (IsTypeBool (SwitchExpr.Type)) {
+        SwitchExpr.Type = type_int;
     }
     ConsumeRParen ();
 

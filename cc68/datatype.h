@@ -86,6 +86,7 @@ enum {
     T_TYPE_ARRAY    = 0x00000C,
     T_TYPE_PTR      = 0x00000D,
     T_TYPE_FUNC     = 0x00000E,
+    T_TYPE_BOOL     = 0x00000F,
     T_MASK_TYPE     = 0x00000F,
 
     /* Type classes */
@@ -144,6 +145,7 @@ enum {
     T_ARRAY     = T_TYPE_ARRAY    | T_CLASS_PTR    | T_SIGN_NONE     | T_SIZE_NONE,
     T_PTR       = T_TYPE_PTR      | T_CLASS_PTR    | T_SIGN_NONE     | T_SIZE_NONE,
     T_FUNC      = T_TYPE_FUNC     | T_CLASS_FUNC   | T_SIGN_NONE     | T_SIZE_NONE,
+    T_BOOL      = T_TYPE_BOOL     | T_CLASS_INT    | T_SIGN_UNSIGNED | T_SIZE_NONE,
 
     /* Aliases */
     T_SIZE_T    = T_UINT,
@@ -321,6 +323,8 @@ INLINE TypeCode GetType (const Type* T)
 #else
 #  define GetType(T)    ((T)->C & T_MASK_TYPE)
 #endif
+
+#define IsTypeBool(T)          (GetType (T) == T_TYPE_BOOL)
 
 #if defined(HAVE_INLINE)
 INLINE int IsTypeChar (const Type* T)

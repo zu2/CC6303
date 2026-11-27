@@ -93,6 +93,8 @@ static const struct Keyword {
     unsigned char   Tok;        /* The token */
     unsigned char   Std;        /* Token supported in which standards? */
 } Keywords [] = {
+    { "_Bool",         TOK_BOOL,       TT_C89 | TT_C99 | TT_CC68  },
+
     /* FIXME: remove a lot of the 6502isms here */
     { "_Pragma",        TOK_PRAGMA,     TT_C89 | TT_C99 | TT_CC68  },   /* !! */
     { "__AX__",         TOK_AX,         TT_C89 | TT_C99 | TT_CC68  },

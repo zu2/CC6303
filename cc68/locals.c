@@ -265,14 +265,16 @@ static void ParseAutoDecl (Declaration* Decl)
                 /* Parse the expression */
                 hie1 (&Expr);
 
+                if (IsTypeBool (Sym->Type) || !ED_IsConstAbsInt (&Expr)) {
+                    TypeConversion (&Expr, Sym->Type);
+                }
+
                 /* If the value is not const, load it into the primary.
                 ** Otherwise pass the information to the code generator.
                 */
                 if (ED_IsConstAbsInt (&Expr))
                     Flags |= CF_CONST;
                 else {
-                    /* Convert it to the target type */
-                    TypeConversion (&Expr, Sym->Type);
                     LoadExpr (CF_NONE, &Expr);
                     /* Then make it an rval */
 //                    ED_MakeRVal (&Expr);
