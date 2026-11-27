@@ -270,8 +270,9 @@ int F_AllocRegVar (Function* F, const Type* Type)
 ** bank (zero page storage). If there is no register space left, return -1.
 */
 {
-    /* Allow register variables only on top level and if enabled */
-    if (IS_Get (&EnableRegVars) && GetLexicalLevel () == LEX_LEVEL_FUNCTION) {
+    /* Keep volatile locals on the stack when longjmp restores @reg. */
+    if (IS_Get (&EnableRegVars) && GetLexicalLevel () == LEX_LEVEL_FUNCTION &&
+        !IsQualVolatile (Type)) {
 
         /* Get the size of the variable */
         unsigned Size = CheckedSizeOf (Type);

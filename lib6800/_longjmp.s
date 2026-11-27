@@ -3,26 +3,37 @@
 
 	.code
 
-;
-;	We don't have much work to do. X is scratch, D is the return
-;	code so really we only have S and the return address to worry
-;	about
-;
 _longjmp:
 	tsx
-	ldab	3,x		; retval
+	ldx	4,x
+	ldaa	4,x
+	ldab	5,x
+	staa	@fp
+	stab	@fp+1
+	ldaa	6,x
+	ldab	7,x
+	staa	@reg
+	stab	@reg+1
+	ldaa	8,x
+	ldab	9,x
+	staa	@reg+2
+	stab	@reg+3
+	ldaa	10,x
+	ldab	11,x
+	staa	@reg+4
+	stab	@reg+5
+	tsx
+	ldab	3,x
 	ldaa	2,x
 	bne	retok
-	tsta
+	tstb
 	bne	retok
-	incb			; retval 1 if 0 requested
+	incb
 retok:
-	ldx	4,x		; get the setjmp buffer
-	lds	,x		; recover the stack pointer
-	ldx	2,x		; and the restored pc
-	ins			; adjust the stack
+	ldx	4,x
+	lds	,x
+	ldx	2,x
 	ins
-	ins			; pop the setjmp arguments
 	ins
 	ins
 	ins

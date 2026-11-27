@@ -4,20 +4,25 @@
 	.setcpu 6803
 	.code
 
-;
-;	We don't have much work to do. X is scratch, D is the return
-;	code so really we only have S and the return address to worry
-;	about
-;
 _longjmp:
 	tsx
-	ldd	3,x		; retval
+	ldx	4,x
+	ldd	4,x
+	std	@fp
+	ldd	6,x
+	std	@reg
+	ldd	8,x
+	std	@reg+2
+	ldd	10,x
+	std	@reg+4
+	tsx
+	ldd	2,x
 	bne	retok
-	incb			; retval 1 if 0 requested
+	incb
 retok:
-	ldx	5,x		; get the setjmp buffer
-	lds	,x		; recover the stack pointer
-	ldx	2,x		; and the restored pc
-	ins			; adjust the stack
+	ldx	4,x
+	lds	,x
+	ldx	2,x
+	ins
 	ins
 	jmp	,x
