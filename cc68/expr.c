@@ -381,6 +381,7 @@ static unsigned FunctionParamList (FuncDesc* Func)
 
         unsigned Flags;
         unsigned ArgSize;
+        unsigned StructSize = 0;
 
         /* Count arguments */
         ++ParamCount;
@@ -445,22 +446,37 @@ static unsigned FunctionParamList (FuncDesc* Func)
 
         }
 
-        /* Use the type of the argument for the push */
-//      Flags |= TypeOf (Expr.Type);
-
-        /* Load the value into the primary if it is not already there */
-        if (CanLoadViaX(Flags, &Expr)) {
-            LoadExprX(Flags, &Expr);
-            Flags |= CF_USINGX;
-        } else {
-            LoadExpr (Flags, &Expr);
+        if (IsClassStruct (Expr.Type)) {
+            StructSize = SizeOf (Expr.Type);
+            if (StructSize == 0 || StructSize > SIZEOF_LONG) {
+                Error ("Passing struct or union of size %u by value is unsupported", StructSize);
+                ED_MakeConstAbsInt (&Expr, 0);
+            } else if (StructSize == SIZEOF_CHAR) {
+                Flags |= CF_FORCECHAR;
+            }
         }
 
-        /* Use the type of the argument for the push but not the fetch */
-        Flags |= TypeOf (Expr.Type);
+        if (StructSize == 3) {
+            int ByAddress = ED_IsLVal (&Expr) || ED_IsIndirectRVal (&Expr);
+            if (ByAddress)
+                LoadAddr (&Expr);
+            else
+                LoadExpr (CF_NONE, &Expr);
+            g_push3 (ByAddress);
+            ArgSize = StructSize;
+        } else {
+            /* Load the value into the primary if it is not already there */
+            if (CanLoadViaX(Flags, &Expr)) {
+                LoadExprX(Flags, &Expr);
+                Flags |= CF_USINGX;
+            } else {
+                LoadExpr (Flags, &Expr);
+            }
 
-        ArgSize = sizeofarg (Flags);
-        g_push (Flags, Expr.IVal);
+            Flags |= TypeOf (Expr.Type);
+            ArgSize = sizeofarg (Flags);
+            g_push (Flags, Expr.IVal);
+        }
         /* Hint to the optimizer that it can optimize use of X and D */
         g_statement();
         
@@ -1182,7 +1198,7 @@ static void StructRef (ExprDesc* Expr)
     /* If we have a struct pointer that is an lvalue and not already in the
     ** primary, load it now.
     */
-    if (ED_IsLVal (Expr) && IsTypePtr (Expr->Type)) {
+    if ((ED_IsLVal (Expr) || ED_IsIndirectRVal (Expr)) && IsTypePtr (Expr->Type)) {
 
         /* Load into the primary */
         LoadExpr (CF_NONE, Expr);
@@ -1204,10 +1220,9 @@ static void StructRef (ExprDesc* Expr)
         FinalType->C |= Q;
     }
 
-    /* A struct is usually an lvalue. If not, it is a struct in the primary
-    ** register.
-    */
-    if (ED_IsRVal (Expr) && ED_IsLocExpr (Expr) && !IsTypePtr (Expr->Type)) {
+    /* Extract the field directly when the struct is in the primary. */
+    if (ED_IsRVal (Expr) && !ED_IsIndirectRVal (Expr) &&
+        ED_IsLocExpr (Expr) && !IsTypePtr (Expr->Type)) {
 
         unsigned Flags = 0;
         unsigned BitOffs;
@@ -1273,7 +1288,7 @@ static void StructRef (ExprDesc* Expr)
         */
         if (IsTypeArray (Expr->Type)) {
             ED_MakeRVal (Expr);
-        } else {
+        } else if (!ED_IsIndirectRVal (Expr)) {
             ED_MakeLVal (Expr);
         }
 

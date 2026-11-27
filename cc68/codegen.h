@@ -390,6 +390,9 @@ void g_test (unsigned flags);
 void g_push (unsigned flags, unsigned long val);
 /* Push the primary register or a constant value onto the stack */
 
+void g_push3 (int ByAddress);
+/* Push three bytes from the address in D or the low 24 bits of the primary. */
+
 void g_swap (unsigned flags);
 /* Swap the primary register and the top of the stack. flags give the type
 ** of *both* values (must have same size).

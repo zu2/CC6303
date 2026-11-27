@@ -66,6 +66,9 @@ struct ExprDesc;
 void LoadExpr (unsigned Flags, struct ExprDesc* Expr);
 /* Load an expression into the primary register if it is not already there. */
 
+void LoadAddr (const struct ExprDesc* Expr);
+/* Load the address of an object into the primary register. */
+
 void LoadExprX (unsigned Flags, struct ExprDesc* Expr);
 /* Load an expression into X if it is not already there. */
 

@@ -107,8 +107,7 @@ void Assignment (ExprDesc* Expr)
         if (UseReg) {
             PushAddr (Expr);
         } else {
-            ED_MakeRVal (Expr);
-            LoadExpr (CF_NONE, Expr);
+            LoadAddr (Expr);
             g_push (CF_PTR | CF_UNSIGNED, 0);
         }
 
@@ -120,60 +119,29 @@ void Assignment (ExprDesc* Expr)
             Error ("Incompatible types");
         }
 
-        /* Check if the right hand side is an lvalue */
-        if (ED_IsLVal (&Expr2)) {
-            /* We have an lvalue. Do we copy using the primary? */
-            if (UseReg) {
-                /* Just use the replacement type */
+        if (UseReg) {
+            if (ED_IsLVal (&Expr2) || ED_IsIndirectRVal (&Expr2)) {
                 Expr2.Type = stype;
-
-                /* Load the value into the primary */
                 LoadExpr (CF_FORCECHAR, &Expr2);
-
-                /* Store it into the new location */
-                Store (Expr, stype);
-
-            } else {
-
-                /* We will use memcpy. Push the address of the rhs */
-                ED_MakeRVal (&Expr2);
-                LoadExpr (CF_NONE, &Expr2);
-
-                /* Push the address (or whatever is in D in case of errors) */
-                g_push (CF_PTR | CF_UNSIGNED, 0);
-
-                /* Really we need to fix up CanLoadViaX() to have a pure flag form so we
-                   can push this down */
-                if (CPU == CPU_6800)
-                    g_push (CF_INT | CF_UNSIGNED | CF_CONST, CheckedSizeOf (ltype));
-                else
-                    /* Load the size of the struct into X */
-                    g_push (CF_INT | CF_USINGX | CF_UNSIGNED | CF_CONST, CheckedSizeOf (ltype));
-                g_call (CF_FIXARGC, Func_memcpy, 6);
-                /* On 6800, memcpy drops its arguments. */
-                if (CPU != CPU_6800)
-                    g_drop (6, 0);
-                /* Correct the stack pointer */
-                StackPtr += 6;
             }
+            Store (Expr, stype);
+        } else if (ED_IsLVal (&Expr2) || ED_IsIndirectRVal (&Expr2)) {
+            LoadAddr (&Expr2);
+            g_push (CF_PTR | CF_UNSIGNED, 0);
+            g_push (CF_INT | CF_UNSIGNED | CF_CONST, CheckedSizeOf (ltype));
+            g_call (CF_FIXARGC, Func_memcpy, 6);
+            /* On 6800, memcpy drops its arguments. */
+            if (CPU != CPU_6800)
+                g_drop (6, 1);
+            StackPtr += 6;
 
+            /* memcpy returns the address of the result. */
+            ED_MakeRValExpr (Expr);
+            Expr->Flags |= E_RTYPE_INDIRECT;
+            return;
         } else {
-
-            /* We have an rvalue. This can only happen if a function returns
-            ** a struct, since there is no other way to generate an expression
-            ** that has a struct as an rvalue result. We allow only 1, 2, and 4
-            ** byte sized structs, and do direct assignment.
-            */
-            if (UseReg) {
-                /* Do the store */
-                Store (Expr, stype);
-            } else {
-                /* Print a diagnostic */
-                Error ("Structs of this size are not supported");
-                /* Adjust the stack so we won't run in an internal error later */
-                pop (CF_PTR);
-            }
-
+            Error ("Structs of this size are not supported");
+            pop (CF_PTR);
         }
 
     } else if (ED_IsBitField (Expr)) {

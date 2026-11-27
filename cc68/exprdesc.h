@@ -84,9 +84,10 @@ enum {
                           E_LOC_REGISTER | E_LOC_LITERAL,
 
     /* Reference? */
-    E_MASK_RTYPE        = 0x0100,
+    E_MASK_RTYPE        = 0x2100,
     E_RTYPE_RVAL        = 0x0000,
     E_RTYPE_LVAL        = 0x0100,
+    E_RTYPE_INDIRECT    = 0x2000,       /* Rvalue at the address in E_LOC_EXPR */
 
     /* Bit-field? */
     E_BITFIELD          = 0x0200,
@@ -227,30 +228,32 @@ INLINE int ED_IsLVal (const ExprDesc* Expr)
 INLINE int ED_IsRVal (const ExprDesc* Expr)
 /* Return true if the expression is a rvalue */
 {
-    return (Expr->Flags & E_MASK_RTYPE) == E_RTYPE_RVAL;
+    return !ED_IsLVal (Expr);
 }
 #else
-#  define ED_IsRVal(Expr)       (((Expr)->Flags & E_MASK_RTYPE) == E_RTYPE_RVAL)
+#  define ED_IsRVal(Expr)       (!ED_IsLVal (Expr))
 #endif
+
+#define ED_IsIndirectRVal(Expr) (((Expr)->Flags & E_MASK_RTYPE) == E_RTYPE_INDIRECT)
 
 #if defined(HAVE_INLINE)
 INLINE void ED_MakeLVal (ExprDesc* Expr)
 /* Make the expression a lvalue. */
 {
-    Expr->Flags |= E_RTYPE_LVAL;
+    Expr->Flags = (Expr->Flags & ~E_MASK_RTYPE) | E_RTYPE_LVAL;
 }
 #else
-#  define ED_MakeLVal(Expr)     do { (Expr)->Flags |= E_RTYPE_LVAL; } while (0)
+#  define ED_MakeLVal(Expr)     do { (Expr)->Flags = ((Expr)->Flags & ~E_MASK_RTYPE) | E_RTYPE_LVAL; } while (0)
 #endif
 
 #if defined(HAVE_INLINE)
 INLINE void ED_MakeRVal (ExprDesc* Expr)
 /* Make the expression a rvalue. */
 {
-    Expr->Flags &= ~E_RTYPE_LVAL;
+    Expr->Flags &= ~E_MASK_RTYPE;
 }
 #else
-#  define ED_MakeRVal(Expr)     do { (Expr)->Flags &= ~E_RTYPE_LVAL; } while (0)
+#  define ED_MakeRVal(Expr)     do { (Expr)->Flags &= ~E_MASK_RTYPE; } while (0)
 #endif
 
 #if defined(HAVE_INLINE)

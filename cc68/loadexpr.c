@@ -209,7 +209,7 @@ void LoadExprX (unsigned Flags, struct ExprDesc* Expr)
 void LoadExpr (unsigned Flags, struct ExprDesc* Expr)
 /* Load an expression into the primary register if it is not already there. */
 {
-    if (ED_IsLVal (Expr)) {
+    if (ED_IsLVal (Expr) || ED_IsIndirectRVal (Expr)) {
 
         /* Dereferenced lvalue. If this is a bit field its type is unsigned.
         ** But if the field is completely contained in the lower byte, we will
@@ -321,4 +321,13 @@ void LoadExpr (unsigned Flags, struct ExprDesc* Expr)
         }
     }
 
+}
+
+void LoadAddr (const struct ExprDesc* Expr)
+/* Load the address of an object into the primary register. */
+{
+    ExprDesc Addr = *Expr;
+    Addr.Type = type_uint;
+    ED_MakeRVal (&Addr);
+    LoadExpr (CF_NONE, &Addr);
 }

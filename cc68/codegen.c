@@ -3334,6 +3334,34 @@ void g_push (unsigned flags, unsigned long val)
 
 
 
+void g_push3 (int ByAddress)
+/* Push three bytes from the address in D or the low 24 bits of the primary. */
+{
+    NotViaX();
+    if (ByAddress) {
+        DToX();
+        AddCodeLine("ldab 2,x");
+        AddCodeLine("pshb");
+        if (CPU == CPU_6800) {
+            LoadDViaX(0);
+            AddCodeLine("pshb");
+            AddCodeLine("psha");
+        } else {
+            AddCodeLine("ldx ,x");
+            AddCodeLine("pshx");
+        }
+    } else {
+        AddCodeLine("pshb");
+        AddCodeLine("psha");
+        AddCodeLine("ldab @sreg+1");
+        AddCodeLine("pshb");
+        ModifyX(-3);
+    }
+    StackPtr -= 3;
+}
+
+
+
 void g_swap (unsigned flags)
 /* Swap the primary register and the top of the stack. flags give the type
 ** of *both* values (must have same size).

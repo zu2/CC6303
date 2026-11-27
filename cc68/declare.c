@@ -1373,6 +1373,9 @@ static FuncDesc* ParseFuncDecl (void)
     Sym = F->LastParam;
     while (Sym) {
         unsigned Size = CheckedSizeOf (Sym->Type);
+        if (IsClassStruct (Sym->Type) && Size > SIZEOF_LONG) {
+            Error ("Passing struct or union of size %u by value is unsupported", Size);
+        }
         Sym->V.Offs = Offs;
         Offs += Size;
         F->ParamSize += Size;
