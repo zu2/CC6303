@@ -5376,9 +5376,9 @@ void g_ge (unsigned flags, unsigned long val)
 
                 case CF_CHAR:
                     if (flags & CF_FORCECHAR) {
-                        AddCodeLine ("comb");
-                        AddCodeLine ("rolb");
-                        AddCodeLine ("ldab #0");
+                        AddCodeLine ("clra");
+                        AddCodeLine ("cmpb #$80");
+                        AddCodeLine ("tab");
                         AddCodeLine ("rolb");
                         return;
                     }
