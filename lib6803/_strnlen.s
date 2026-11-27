@@ -7,7 +7,8 @@
 
 _strnlen:
 	tsx
-	ldd 2,x			; work out the stop mark
+	ldd 2,x			; n
+	beq to_rts
 	addd 4,x
 	std @tmp		; save it
 	ldx 4,x

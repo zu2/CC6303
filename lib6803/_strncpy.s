@@ -47,6 +47,6 @@ end1:
 end2:
 	tsx
 end3:
-	ldd	4,x
+	ldd	6,x
 	rts
 

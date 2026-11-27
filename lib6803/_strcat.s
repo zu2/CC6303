@@ -9,14 +9,15 @@
 
 _strcat:
 	tsx
-	ldd	4,x
-	std	@tmp		; destination
-	ldx	2,x		; src
+	ldx	4,x		; dest
+	dex
 endhunt:
-	tst	,x
-	beq	copyloop
 	inx
-	bra	endhunt
+	tst	,x
+	bne	endhunt
+	stx	@tmp
+	tsx
+	ldx	2,x		; src
 copyloop:
 	ldaa	,x
 	inx
@@ -28,5 +29,6 @@ copyloop:
 	pulx
 	tsta
 	bne copyloop
+	tsx
 	ldd	4,x
 	rts
