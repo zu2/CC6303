@@ -2549,6 +2549,12 @@ static void hie_compare (const GenDesc* Ops,    /* List of generators */
                 flags |= g_typeadjust (ltype, rtype);
             }
 
+            if (rconst && (flags & CF_UNSIGNED) &&
+                IsClassInt (Expr->Type) && IsClassInt (Expr2.Type)) {
+                Type* CommonType = promoteint (Expr->Type, Expr2.Type);
+                Expr2.IVal = IntConstValue (Expr2.IVal, CommonType);
+            }
+
             /* If the left side is an unsigned and the right is a constant,
             ** we may be able to change the compares to something more
             ** effective.
