@@ -3,11 +3,13 @@
 ;
 
 	.export _strcpy
+	.export strcpyx
 	.code
 
 _strcpy:
 	tsx
 	ldx	4,x		; dest
+strcpyx:			; X = write address, dest and src are on the stack
 	stx	@tmp
 	tsx
 	ldx	2,x		; src
