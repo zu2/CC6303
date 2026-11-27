@@ -3167,6 +3167,7 @@ static void hieAndPP (ExprDesc* Expr)
 
         /* Combine the two */
         Expr->IVal = (Expr->IVal && Expr2.IVal);
+        Expr->Type = type_int;
     }
 }
 
@@ -3190,6 +3191,7 @@ static void hieOrPP (ExprDesc *Expr)
 
         /* Combine the two */
         Expr->IVal = (Expr->IVal || Expr2.IVal);
+        Expr->Type = type_int;
     }
 }
 
@@ -3322,6 +3324,7 @@ static void hieOr (ExprDesc *Expr)
         g_defcodelabel (TrueLab);
         g_getimmed (CF_INT | CF_CONST, 1, 0);   /* Load TRUE */
         g_defcodelabel (DoneLab);
+        Expr->Type = type_int;
     }
 }
 
