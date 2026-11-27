@@ -3604,6 +3604,9 @@ static void opeq (const GenDesc* Gen, ExprDesc* Expr, const char* Op)
 		Gen->Func (g_typeadjust (flags, TypeOf (Expr2.Type)), 0);
 	}
     }
+    if (Gen->Tok == TOK_SHL_ASSIGN && IsTypeChar (Expr->Type)) {
+        g_typecast (flags, CF_INT);
+    }
     Store (Expr, 0);
     ED_MakeRValExpr (Expr);
 }
