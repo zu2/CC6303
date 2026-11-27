@@ -42,6 +42,8 @@
 
 
 
+#include <limits.h>
+
 /* common */
 #include "shift.h"
 
@@ -53,6 +55,7 @@
 #include "expr.h"
 #include "exprdesc.h"
 #include "loadexpr.h"
+#include "preproc.h"
 #include "scanner.h"
 #include "shiftexpr.h"
 #include "typeconv.h"
@@ -108,7 +111,8 @@ void ShiftExpr (struct ExprDesc* Expr)
         GenFlags = TypeOf (ResultType);
 
         /* Calculate the number of bits the lhs operand has */
-        ExprBits = SizeOf (ResultType) * 8;
+        ExprBits = Preprocessing ? sizeof (unsigned long) * CHAR_BIT
+                                 : SizeOf (ResultType) * 8;
 
         /* Get the lhs on stack */
         GetCodePos (&Mark1);
