@@ -6,12 +6,12 @@
 
 _labs:
 		tsx
-		ldd 3,x
+		ldd 2,x
 		std @sreg
 		bita #$80
 		beq labsdone
-		ldd 5,x
+		ldd 4,x
 		jmp negeax
 labsdone:
-		ldd 5,x	
+		ldd 4,x
 		rts

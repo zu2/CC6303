@@ -9,16 +9,19 @@
 
 __cpu_to_le32:
 __le32_to_cpu:
-	; The argument is top of stack 2,s-5,s
+	; Argument at 2-5,x, result in sreg:D
 	tsx
-	ldx 2,x
-	pshx
-	ldd 4,x
-	stab 2,x
-	staa 3,x
-	pulb
-	pula
-	std 4,x
+	ldaa 5,x
+	ldab 4,x
+	std @sreg
+	ldaa 3,x
+	ldab 2,x
+	rts
+
 __cpu_to_be32:
 __be32_to_cpu:
+	tsx
+	ldd 2,x
+	std @sreg
+	ldd 4,x
 	rts

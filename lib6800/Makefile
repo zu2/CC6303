@@ -25,6 +25,7 @@ OBJ += _isalnum.o _isalpha.o _isascii.o _isblank.o _iscntrl.o
 OBJ += _isdigit.o _isgraph.o _islower.o _isprint.o _ispunct.o
 OBJ += _isspace.o _isupper.o _isxdigit.o
 OBJ += _tolower.o _toupper.o
+OBJ += _labs.o
 OBJ += _longjmp.o _setjmp.o
 
 all: lib6800.a
