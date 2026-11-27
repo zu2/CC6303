@@ -4880,7 +4880,7 @@ void g_lt (unsigned flags, unsigned long val)
 
                 case CF_LONG:
                     /* Just check the high byte */
-                    AddCodeLine ("asl @sreg+1");	/* breaks @sreg */
+                    AddCodeLine ("asl @sreg");	/* breaks @sreg */
                     AddCodeLine ("rolb");
                     AddCodeLine ("clra");
                     AddCodeLine ("andb #1");
@@ -5335,7 +5335,7 @@ void g_ge (unsigned flags, unsigned long val)
                 case CF_LONG:
                     /* OPTIMIZE: 6303 can use TIM */
                     /* Just test the high byte */
-                    AddCodeLine ("ldab @sreg+1");
+                    AddCodeLine ("ldab @sreg");
                     AddCodeLine ("comb");
                     AddCodeLine ("rolb");
                     AssignD(0, 1);
