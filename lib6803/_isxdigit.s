@@ -8,15 +8,15 @@ _isxdigit:
 		tsx
 		ldab 3,x
 		cmpb #'0'
-		bls fail
+		blo fail
 		cmpb #'9'
-		ble good
+		bls good
 		cmpb #'A'
-		bls fail
+		blo fail
 		cmpb #'F'
-		ble good
+		bls good
 		cmpb #'a'
-		bls fail
+		blo fail
 		cmpb #'f'
 		bls good
 fail:		clrb

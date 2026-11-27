@@ -7,21 +7,22 @@ _ispunct:
 		clra
 		tsx
 		ldab 3,x
-		cmpb #' '
-		bls fail
-		cmpb #'z'
-		bhi good
-		cmpb #'a'
-		bhs fail
-		cmpb #'Z'
-		bhi good
-		cmpb #'A'
-		bhs fail
-		cmpb #'0'
-		bhi good
-		cmpb #'9'
-		bhi good
+		cmpb #$21
+		blo fail
+		cmpb #$2F
+		bls good
+		cmpb #$3a
+		blo fail
+		cmpb #$40
+		bls good
+		cmpb #$5b
+		blo fail
+		cmpb #$60
+		bls good
+		cmpb #$7b
+		blo fail
+		cmpb #$7e
+		bls good
 fail:		clrb
-		rts
 		; any non zero is 'good
 good:		rts

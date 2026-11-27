@@ -8,9 +8,10 @@
 		.code
 
 _toupper:
-		clra
 		tsx
 		ldab 3,x
+		ldaa 2,x
+		bne done
 		cmpb #'a'
 		bcs done
 		cmpb #'z'

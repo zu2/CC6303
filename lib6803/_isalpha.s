@@ -1,18 +1,18 @@
 
-		.export _isalnum
+		.export _isalpha
 
 		.code
 
-_isalnum:
+_isalpha:
 		clra
 		tsx
 		ldab 3,x
 		cmpb #'A'
-		bls fail
+		blo fail
 		cmpb #'Z'
-		ble good
+		bls good
 		cmpb #'a'
-		bls fail
+		blo fail
 		cmpb #'z'
 		bls good
 fail:		clrb

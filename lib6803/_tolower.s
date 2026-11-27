@@ -1,14 +1,16 @@
 
 		.export _tolower
 
+		.setcpu 6803
 		.code
 
 _tolower:
 		tsx
-		clra
-		ldab 3,x
+		ldd 2,x
+		tsta
+		bne done
 		cmpb #'A'
-		blt done
+		blo done
 		cmpb #'Z'
 		bhi done
 		addb #$20

@@ -8,9 +8,10 @@
 		.code
 
 _tolower:
-		clra
 		tsx
 		ldab 3,x
+		ldaa 2,x
+		bne done
 		cmpb #'A'
 		bcs done
 		cmpb #'Z'

@@ -10,9 +10,9 @@ _isspace:
 		cmpb #' '
 		beq good
 		cmpb #9		; tab
-		bls fail
-		cmpb #13	; line feed
-		ble good
+		blo fail
+		cmpb #13	; carriage return
+		bls good
 fail:		clrb
 		; any non zero is 'good
 good:		rts

@@ -5,11 +5,11 @@
 
 _isascii:
 		clra
+		clrb
 		tsx
-		ldab 3,x
-		cmpb #127
-		bhs fail
-		ldab #1
-		rts
-fail:		clrb
-		rts
+		tst 2,x
+		bne done
+		tst 3,x
+		bmi done
+		incb
+done:		rts

@@ -1,14 +1,16 @@
 
 		.export _toupper
 
+		.setcpu 6803
 		.code
 
 _toupper:
 		tsx
-		clra
-		ldab 3,x
+		ldd 2,x
+		tsta
+		bne done
 		cmpb #'a'
-		blt done
+		blo done
 		cmpb #'z'
 		bhi done
 		subb #$20

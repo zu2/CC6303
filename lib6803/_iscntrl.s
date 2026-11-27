@@ -8,7 +8,10 @@ _iscntrl:
 		tsx
 		ldab 3,x
 		cmpb #32
-		bhs fail
+		blo good
+		cmpb #127
+		bne fail
+good:
 		ldab #1
 		rts
 fail:		clrb
