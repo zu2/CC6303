@@ -80,6 +80,7 @@ static GenDesc GenAASGN  = { TOK_AND_ASSIGN,    GEN_NOPUSH,     g_and };
 static GenDesc GenXOASGN = { TOK_XOR_ASSIGN,    GEN_NOPUSH,     g_xor };
 static GenDesc GenOASGN  = { TOK_OR_ASSIGN,     GEN_NOPUSH,     g_or  };
 
+static int PPSkipEval;                 /* Parsing a short-circuited #if operand */
 
 /* Flesh this out and keep the goals and Mark for the X version in
    the ExprDesc somewhere. Ideally we want the failure check to
@@ -2156,6 +2157,10 @@ static void hie_internal (const GenDesc* Ops,   /* List of generators */
             RemoveCode (&Mark1);
 
             Expr->Type = promoteint (Expr->Type, Expr2.Type);
+            if (PPSkipEval) {
+                Expr->IVal = 0;
+                continue;
+            }
             Left = IntConstValue (Expr->IVal, Expr->Type);
             Right = IntConstValue (Expr2.IVal, Expr->Type);
             switch (Tok) {
@@ -3158,12 +3163,15 @@ static void hieAndPP (ExprDesc* Expr)
 
     ConstAbsIntExpr (hie2, Expr);
     while (CurTok.Tok == TOK_BOOL_AND) {
+        int SavedSkip = PPSkipEval;
 
         /* Skip the && */
         NextToken ();
 
         /* Get rhs */
+        PPSkipEval = SavedSkip || Expr->IVal == 0;
         ConstAbsIntExpr (hie2, &Expr2);
+        PPSkipEval = SavedSkip;
 
         /* Combine the two */
         Expr->IVal = (Expr->IVal && Expr2.IVal);
@@ -3182,12 +3190,15 @@ static void hieOrPP (ExprDesc *Expr)
 
     ConstAbsIntExpr (hieAndPP, Expr);
     while (CurTok.Tok == TOK_BOOL_OR) {
+        int SavedSkip = PPSkipEval;
 
-        /* Skip the && */
+        /* Skip the || */
         NextToken ();
 
         /* Get rhs */
+        PPSkipEval = SavedSkip || Expr->IVal != 0;
         ConstAbsIntExpr (hieAndPP, &Expr2);
+        PPSkipEval = SavedSkip;
 
         /* Combine the two */
         Expr->IVal = (Expr->IVal || Expr2.IVal);
