@@ -3203,11 +3203,10 @@ static void hieAnd (ExprDesc* Expr, unsigned TrueLab, int* BoolOp)
     int FalseLab;
     ExprDesc Expr2;
 
-    ExprWithCheck (hie2, Expr);
+    MarkedExprWithCheck (hie2, Expr);
     if (CurTok.Tok == TOK_BOOL_AND) {
-
-        /* Tell our caller that we're evaluating a boolean */
-        *BoolOp = 1;
+        int AllConst = ED_IsConstAbsInt (Expr) && ED_CodeRangeIsEmpty (Expr);
+        int Value = AllConst && Expr->IVal != 0;
 
         /* Get a label that we will use for false expressions */
         FalseLab = GetLocalLabel ();
@@ -3230,7 +3229,12 @@ static void hieAnd (ExprDesc* Expr, unsigned TrueLab, int* BoolOp)
             NextToken ();
 
             /* Get rhs */
-            hie2 (&Expr2);
+            MarkedExprWithCheck (hie2, &Expr2);
+            AllConst = AllConst && ED_IsConstAbsInt (&Expr2) &&
+                       ED_CodeRangeIsEmpty (&Expr2);
+            if (AllConst) {
+                Value = Value && Expr2.IVal;
+            }
             if (!ED_IsTested (&Expr2)) {
                 ED_MarkForTest (&Expr2);
             }
@@ -3244,6 +3248,15 @@ static void hieAnd (ExprDesc* Expr, unsigned TrueLab, int* BoolOp)
                 g_truejump (CF_NONE, TrueLab);
             }
         }
+
+        if (AllConst) {
+            RemoveCode (&Expr->Start);
+            ED_MakeConstAbsInt (Expr, Value);
+            return;
+        }
+
+        /* Tell our caller that we're evaluating a boolean */
+        *BoolOp = 1;
 
         /* Define the false jump label here */
         g_defcodelabel (FalseLab);
@@ -3260,6 +3273,7 @@ static void hieOr (ExprDesc *Expr)
 /* Process "exp || exp". */
 {
     ExprDesc Expr2;
+    CodeMark Start;
     int BoolOp = 0;             /* Did we have a boolean op? */
     int AndOp;                  /* Did we have a && operation? */
     unsigned TrueLab;           /* Jump to this label if true */
@@ -3269,10 +3283,18 @@ static void hieOr (ExprDesc *Expr)
     TrueLab = GetLocalLabel ();
 
     /* Call the next level parser */
+    GetCodePos (&Start);
     hieAnd (Expr, TrueLab, &BoolOp);
 
     /* Any boolean or's? */
     if (CurTok.Tok == TOK_BOOL_OR) {
+        CodeMark End;
+        int AllConst;
+        int Value;
+
+        GetCodePos (&End);
+        AllConst = ED_IsConstAbsInt (Expr) && CodeRangeIsEmpty (&Start, &End);
+        Value = AllConst && Expr->IVal != 0;
 
         /* If the expr hasn't set condition codes, set the force-test flag */
         if (!ED_IsTested (Expr)) {
@@ -3294,13 +3316,21 @@ static void hieOr (ExprDesc *Expr)
 
         /* while there's more expr */
         while (CurTok.Tok == TOK_BOOL_OR) {
+            CodeMark OperandStart;
 
             /* skip the || */
             NextToken ();
 
             /* Get a subexpr */
             AndOp = 0;
+            GetCodePos (&OperandStart);
             hieAnd (&Expr2, TrueLab, &AndOp);
+            GetCodePos (&End);
+            AllConst = AllConst && ED_IsConstAbsInt (&Expr2) &&
+                       CodeRangeIsEmpty (&OperandStart, &End);
+            if (AllConst) {
+                Value = Value || Expr2.IVal;
+            }
             if (!ED_IsTested (&Expr2)) {
                 ED_MarkForTest (&Expr2);
             }
@@ -3309,6 +3339,12 @@ static void hieOr (ExprDesc *Expr)
             /* If there is more to come, add shortcut boolean eval. */
             g_truejump (CF_NONE, TrueLab);
 
+        }
+
+        if (AllConst) {
+            RemoveCode (&Start);
+            ED_MakeConstAbsInt (Expr, Value);
+            return;
         }
 
         /* The result is an rvalue in primary */
