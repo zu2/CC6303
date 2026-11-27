@@ -6,11 +6,12 @@
 
 _memset:
 	tsx
-	ldd	6,x		; start
-	addd	2,x		; + length
-	std	@tmp		; end stop
-	ldab	5,x		; fill byte
-	ldx	6,x		; start
+	ldd	2,x
+	beq	done
+	addd	6,x
+	std	@tmp		; s + n
+	ldab	5,x
+	ldx	6,x
 
 loop:
 	stab	,x
@@ -18,5 +19,6 @@ loop:
 	cpx	@tmp
 	bne	loop
 	tsx
-	ldx	6,x		; returns the start passed in
+done:
+	ldd	6,x
 	rts

@@ -6,19 +6,24 @@ _strcmp:
 		ldd 2,x
 		ldx 4,x
 		std @tmp
+		bra cmpbegin
 loop:
-		ldab ,x		; get *s1 into B
-		stx @tmp2	; switch pointer
-		ldx @tmp
-		cmpb ,x		; compare with *s2
-		blo ret1
-		bhi retminus1
-		inx		; move on
-		stx @tmp
-		ldx @tmp2	; switch pointer back
 		inx
-		bra loop	; rinse, repeat
-ret1:
+		stx @tmp
+		ldx @tmp2
+		inx
+cmpbegin:
+		ldab ,x
+		stx @tmp2
+		ldx @tmp
+		cmpb ,x
+		bne cmpend
+		tstb
+		bne loop
+		clra
+		rts
+cmpend:
+		blo retminus1
 		ldd @one
 		rts
 retminus1:
