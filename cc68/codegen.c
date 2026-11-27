@@ -2166,9 +2166,11 @@ unsigned g_typeadjust (unsigned lhs, unsigned rhs)
     rtype = rhs & CF_TYPEMASK;
 
     /* Check if a conversion is needed */
-    if (ltype == CF_LONG && rtype != CF_LONG && (rhs & CF_CONST) == 0) {
-        /* We must promote the primary register to long */
-        g_reglong (rhs);
+    if (ltype == CF_LONG && rtype != CF_LONG) {
+        if ((rhs & CF_CONST) == 0) {
+            /* We must promote the primary register to long */
+            g_reglong (rhs);
+        }
         /* Get the new rhs type */
         rhs = (rhs & ~CF_STYPEMASK) | CF_LONG;
         rtype = CF_LONG;
