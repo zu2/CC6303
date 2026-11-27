@@ -9,12 +9,13 @@
 __cpu_to_le16:
 __le16_to_cpu:
 	tsx
-	ldx 1,x
-	ins
-	ins
-	pulb
-	pula
-	jmp ,x
+	ldaa 3,x
+	ldab 2,x
+	jmp ret2
+
 __cpu_to_be16:
 __be16_to_cpu:
+	tsx
+	ldaa 2,x
+	ldab 3,x
 	jmp ret2
