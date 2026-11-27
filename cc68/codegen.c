@@ -5298,9 +5298,9 @@ void g_ge (unsigned flags, unsigned long val)
                 case CF_LONG:
                     /* Do a subtraction. Condition is true if carry clear */
                     SubDConst(val);
-                    AddCodeLine ("ldab @sreg");
-                    AddCodeLine ("sbcb #$%02X", (unsigned char)(val >> 16));
                     AddCodeLine ("ldab @sreg+1");
+                    AddCodeLine ("sbcb #$%02X", (unsigned char)(val >> 16));
+                    AddCodeLine ("ldab @sreg");
                     AddCodeLine ("sbcb #$%02X", (unsigned char)(val >> 24));
                     AddCodeLine ("jsr booluge");
                     return;
