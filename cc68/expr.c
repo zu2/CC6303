@@ -3556,15 +3556,23 @@ static void opeq (const GenDesc* Gen, ExprDesc* Expr, const char* Op)
             g_inc (flags | CF_CONST, Expr2.IVal);
         } else if (Gen->Func == g_sub) {
             g_dec (flags | CF_CONST, Expr2.IVal);
-        } else {
-            if (Expr2.IVal == 0) {
-                /* Check for div by zero/mod by zero */
+        } else if ((Gen->Func == g_div || Gen->Func == g_mod) &&
+                   IsClassInt (Expr->Type) && IsClassInt (Expr2.Type)) {
+            Type* CommonType = promoteint (Expr->Type, Expr2.Type);
+            unsigned CommonFlags = TypeOf (CommonType);
+            long Val = IntConstValue (Expr2.IVal, CommonType);
+
+            if (Val == 0) {
                 if (Gen->Func == g_div) {
                     Error ("Division by zero");
-                } else if (Gen->Func == g_mod) {
+                } else {
                     Error ("Modulo operation with zero");
                 }
             }
+            g_typecast (CommonFlags, flags & ~CF_FORCECHAR);
+            Gen->Func (CommonFlags | CF_CONST, Val);
+            g_typecast (flags, CommonFlags);
+        } else {
             Gen->Func (flags | CF_CONST, Expr2.IVal);
         }
     } else {
