@@ -729,8 +729,8 @@ L%3
 	jsr dtox
 	ldaa @tmp2
 	ldab @tmp2+1
-	staa $01,x
-	stab $00,x
+	staa $00,x
+	stab $01,x
 =
 	jsr dtoxstoretmp2
 
@@ -748,8 +748,8 @@ L%3
 	jsr dtoxldb
 
 	jsr dtox
-	ldaa $01,x
-	ldab $00,x
+	ldab $01,x
+	ldaa $00,x
 =
 	jsr dtoxldw
 
@@ -828,17 +828,16 @@ L%3
 	stab @tmp2+1
 	pulb
 
-# take the return value store it and push it foo(bar(...
+# Store and push D, then point X at the new top of stack.
 	tsx
 	stab $01,x
 	staa $00,x
-	;invalid DP
-	ldaa $01,x
-	ldab $00,x
+	ldab $01,x
+	ldaa $00,x
 	pshb
 	psha
-=
 	tsx
+=
 	jsr storedpush
 
 
@@ -1831,8 +1830,8 @@ L%3
 #
 #	7,x
 #
-	ldab $07,x
-	ldaa $07+1,x
+	ldaa $07,x
+	ldab $07+1,x
 	pshb
 	psha
 =

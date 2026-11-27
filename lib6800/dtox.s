@@ -24,8 +24,8 @@ dtoxstorew0:
 dtoxstoretmp2:
 	bsr dtox
 	ldaa @tmp2
-	staa ,x
 	ldab @tmp2+1
+	staa ,x
 	stab 1,x
 	rts
 

@@ -86,8 +86,8 @@ pshindvx7:
 	pulb
 	staa @tmp
 	stab @tmp+1
-	ldab 8,x
 	ldaa 7,x
+	ldab 8,x
 	pshb
 	psha
 	jmp @jmptmp
