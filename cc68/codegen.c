@@ -1907,6 +1907,13 @@ void g_putind (unsigned Flags, unsigned Offs)
         Offs = 0;
     }
 
+    if (CPU == CPU_6800 &&
+        (Flags & CF_TYPEMASK) != CF_CHAR && Offs == size - 1) {
+        /* The last byte would need 256,x. */
+        AddCodeLine("inx");
+        --Offs;
+    }
+
     /* X now points into the object, and Offs is the remaining offset to
        allow for. D holds the stuff to store */                
     switch (Flags & CF_TYPEMASK) {
