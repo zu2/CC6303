@@ -1957,6 +1957,7 @@ void hie10 (ExprDesc* Expr)
                 ED_MakeRValExpr (Expr);
                 ED_TestDone (Expr);             /* bneg will set cc */
             }
+            Expr->Type = type_int;
             break;
 
         case TOK_STAR:
