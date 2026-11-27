@@ -125,7 +125,7 @@ void ShiftExpr (struct ExprDesc* Expr)
         }
 
         /* Get the right hand side */
-        ExprWithCheck (hie8, &Expr2);
+        MarkedExprWithCheck (hie8, &Expr2);
 
         /* Check the type of the rhs */
         if (!IsClassInt (Expr2.Type)) {
@@ -134,7 +134,7 @@ void ShiftExpr (struct ExprDesc* Expr)
         }
 
         /* Check for a constant right side expression */
-        rconst = ED_IsConstAbs (&Expr2);
+        rconst = ED_IsConstAbs (&Expr2) && ED_CodeRangeIsEmpty (&Expr2);
         if (!rconst) {
 
             /* Not constant, load into the primary */
@@ -145,7 +145,7 @@ void ShiftExpr (struct ExprDesc* Expr)
             /* The rhs is a constant numeric value. */
             GenFlags |= CF_CONST;
 
-            /* Remove the code that pushes the rhs onto the stack. */
+            /* Remove the lhs push. */
             RemoveCode (&Mark2);
 
             /* If the shift count is greater or equal than the bit count of
