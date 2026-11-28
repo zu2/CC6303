@@ -1099,10 +1099,11 @@ static void ArrayRef (ExprDesc* Expr)
             ** evaluation. This will generate better code if the subscript is
             ** a byte sized variable. But beware: This is only possible if the
             ** subscript was not scaled, that is, if this was a byte array
-            ** or pointer.
+            ** or pointer. A signed char subscript needs sign extension.
             */
             if ((ED_IsLocConst (&Subscript) || ED_IsLocStack (&Subscript)) &&
-                CheckedSizeOf (ElementType) == SIZEOF_CHAR) {
+                CheckedSizeOf (ElementType) == SIZEOF_CHAR &&
+                !(IsTypeChar (Subscript.Type) && IsSignSigned (Subscript.Type))) {
 
                 unsigned Flags;
 
@@ -1131,11 +1132,7 @@ static void ArrayRef (ExprDesc* Expr)
                     g_inc (CF_INT, Expr->IVal);
                 } else if (ED_IsLocStack (Expr)) {
                     /* Base address is a local variable address */
-                    if (IsTypeArray (Expr->Type)) {
-                        g_addaddr_local (CF_INT, Expr->IVal);
-                    } else {
-                        g_addlocal (CF_PTR, Expr->IVal);
-                    }
+                    g_addaddr_local (CF_INT, Expr->IVal);
                 } else {
                     /* Base address is a static variable address */
                     unsigned Flags = CF_INT | GlobalModeFlags (Expr);
