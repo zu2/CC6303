@@ -1061,6 +1061,12 @@ static int DoIf (int Skip)
     Token SavedCurTok  = CurTok;
     Token SavedNextTok = NextTok;
 
+    if (Skip) {
+        SB_Clear (MLine);
+        Pass1 (Line, MLine);     /* Read past multi-line comments. */
+        return PushIf (Skip, 1, 0);
+    }
+
     /* Make sure the line infos for the tokens won't get removed */
     if (SavedCurTok.LI) {
         UseLineInfo (SavedCurTok.LI);
