@@ -3748,8 +3748,14 @@ static void addsubeq (const GenDesc* Gen, ExprDesc *Expr, const char* Op)
     rflags |= TypeOf (Expr2.Type) | CF_FORCECHAR;
 
     if (ED_IsConstAbs (&Expr2)) {
+        /* Scale the increment for pointers. */
+        if (MustScale) {
+            Expr2.IVal *= CheckedSizeOf (Indirect (Expr->Type));
+        }
+
         if (Gen->Tok == TOK_PLUS_ASSIGN && Expr2.IVal == 0 &&
-            IsTypeChar (Expr->Type) && !ED_IsBitField (Expr)) {
+            !ED_IsBitField (Expr) &&
+            (IsTypeChar (Expr->Type) || (lflags & CF_TYPEMASK) == CF_INT)) {
             LoadExpr (CF_NONE, Expr);
             if (IsQualVolatile (Expr->Type)) {
                 Store (Expr, 0);
@@ -3761,11 +3767,6 @@ static void addsubeq (const GenDesc* Gen, ExprDesc *Expr, const char* Op)
         /* The resulting value is a constant */
         rflags |= CF_CONST;
         lflags |= CF_CONST;
-
-        /* Scale it */
-        if (MustScale) {
-            Expr2.IVal *= CheckedSizeOf (Indirect (Expr->Type));
-        }
     } else {
         /* Not constant, load into the primary */
         LoadExpr (CF_NONE, &Expr2);
