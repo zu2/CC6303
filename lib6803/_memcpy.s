@@ -31,7 +31,10 @@ nextblock:
 	pula
 	pulb
 	deca
-	bra	nextblock
+	bne	nextblock
+	tstb
+	bne	tailcopy
+	rts
 
 tailcopy:
 	ldaa	,x
