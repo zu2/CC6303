@@ -2494,6 +2494,7 @@ void g_addeqstatic (unsigned flags, uintptr_t label, long offs,
                         if (flags & CF_UNSIGNED) {
                             while(val--)
                                 AddCodeLine("inc ,x");
+                            AddCodeLine("clra");
                             AddCodeLine("ldab ,x");
                         } else {
                             AddCodeLine("jsr baddeqstatic%d", (int)val);
