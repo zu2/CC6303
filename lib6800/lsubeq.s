@@ -25,27 +25,28 @@ lsubeqysp:
 	ldx @tmp
 	pula
 	pulb
-; The caller of lsubeqysp expects the result of the addition to be in @sreg:D
-	bsr lsubeq
-	stab @sreg+1
-	staa @sreg
-	ldab 3,x
-	ldaa 2,x
-	rts
+	bra lsubeq
 lsubeqa:
 	clr @tmp+1
 	clr @tmp
-;	(0-3,X) -=  sreg:D
+; (0-3,x) -= @sreg:D
+; @sreg:D = (0-3,x)
 lsubeq:
 	jsr negeax
 	addb 3,x
 	stab 3,x
 	adca 2,x
 	staa 2,x
+	pshb
+	psha
 	ldab @sreg+1
 	adcb 1,x
 	stab 1,x
+	stab @sreg+1
 	ldaa @sreg
 	adca 0,x
 	staa 0,x
+	staa @sreg
+	pula
+	pulb
 	rts
