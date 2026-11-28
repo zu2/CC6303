@@ -8,6 +8,8 @@
 extern char *strcat(char *__dest, const char *__src);
 extern char *strcpy(char *__dest, const char *__src);
 extern char *strncpy(char *__dest, const char *__src, size_t __n);
+extern size_t strlcpy(char *__dest, const char *__src, size_t __size);
+extern size_t strlcat(char *__dest, const char *__src, size_t __size);
 extern int strcmp(const char *__s1, const char *__s2);
 extern int strncmp(const char *__s1, const char *__s2, size_t __n);
 extern char *strchr(const char *__s, int __c);
@@ -16,6 +18,7 @@ extern size_t strlen(const char *__s);
 extern size_t strnlen(const char *__s, size_t n);
 
 extern void *memcpy(void *__dest, const void *__src, size_t __n);
+extern void *memccpy(void *__dest, const void *__src, int __c, size_t __n);
 extern void *memset(void *__s, int __c, size_t __n);
 extern void *memchr(const void *__s, int __c, size_t __n);
 extern void *memrchr(const void *__s, int __c, size_t __n);

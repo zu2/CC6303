@@ -1,40 +1,57 @@
-
-		.export _strlcpy
-
-		.setcpu 6803
-		.code
+	.export _strlcpy
+	.export strlcpyx
+	.setcpu 6803
+	.code
 
 _strlcpy:
-		tsx
-		ldd 2,x		; size limit
-		addd 4,x	; source limit marker
-		std @tmp
-		ldd 6,x		; dest
-		std @tmp2
-		ldx 4,x		; source
-loop:
-		ldab ,x
-		beq end		; null terminator
-		pshx
-		ldx @tmp2	; copy byte
-		stab ,x
-		inx
-		stx @tmp2
-		pulx
-		inx
-		cpx @tmp	; source hit limit ?
-		bne loop
-		; We ran out of space
-		dex
-		clr ,x
-		tsx		; if we ran out of space we copied size
-		ldd 2,x
-		rts
-end:
-		ldx @tmp2	; get the destination
-		clr ,x		; clear the final byte
-		tsx
-		ldd @tmp2	; end byte
-		addd @one	; +1
-		subd 2,x	; - start (size used)
-		rts
+	tsx
+	ldd	6,x
+	addd	2,x
+	std	@tmp3		; dest + size
+	ldx	6,x
+
+strlcpyx:			; X = write address, @tmp3 = dest + size
+	stx	@tmp
+	tsx
+	ldd	@tmp
+	subd	6,x
+	std	@tmp1		; initial destination length
+	ldx	4,x
+	stx	@tmp2		; source cursor
+	ldx	@tmp
+	cpx	@tmp3
+	beq	scan
+	ldx	@tmp3
+	dex
+	stx	@tmp3		; reserve a byte for NUL
+	ldx	@tmp
+copy:
+	cpx	@tmp3
+	beq	terminate
+	ldx	@tmp2
+	ldab	,x
+	beq	terminate
+	inx
+	stx	@tmp2
+	ldx	@tmp
+	stab	,x
+	inx
+	stx	@tmp
+	bra	copy
+terminate:
+	ldx	@tmp
+	clr	,x
+scan:
+	ldx	@tmp2
+scanloop:
+	tst	,x
+	beq	done
+	inx
+	bra	scanloop
+done:
+	stx	@tmp2
+	tsx
+	ldd	@tmp2
+	subd	4,x
+	addd	@tmp1
+	rts

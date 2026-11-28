@@ -5,8 +5,9 @@
 _memccpy:
 		tsx
 		ldd 2,x
-		addd 8,x
-		std @tmp	; end mark
+		beq nomatch
+		addd 6,x
+		std @tmp	; source + n
 		ldd 8,x
 		std @tmp2	; save 
 		ldab 5,x	; match char
@@ -23,8 +24,9 @@ loop:		ldaa ,x		; get a source byte
 		inx
 		cpx @tmp	; are we done ?
 		bne loop
+nomatch:
 		clra
 		clrb
 		rts
-match:		ldd @tmp3
+match:		ldd @tmp2
 		rts

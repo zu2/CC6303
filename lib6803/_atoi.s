@@ -1,31 +1,55 @@
-
-		.export _atoi
-
-		.setcpu 6803
-		.code
+	.export _atoi
+	.setcpu 6803
+	.code
 
 _atoi:
-		tsx
-		ldx 2,x
-		clra
-		clrb
-		std @tmp
-		std @tmp2
-_atoil:		ldab ,x
-		cmpb #'0'		; in range ?
-		blt done
-		cmpb #'9'
-		bgt done
-		subb #'0'		; make digit
-		stab @tmp2+1		; tmp2 is now the 16bit value
-		ldd @tmp		; existing value
-		std @tmp3		; save d
-		asld			; x 2
-		asld			; x 4
-		addd @tmp		; x 5
-		asld			; x 10
-		addd @tmp2		; + new
-		std @tmp		; save
-		inx			; next char
-		bra _atoil
-done:		rts
+	tsx
+	ldx	2,x
+	clr	@tmp2		; negative sign
+	bra	skipspace
+space:
+	inx
+skipspace:
+	ldab	,x
+	cmpb	#' '
+	beq	space
+	cmpb	#9
+	blo	sign
+	cmpb	#13
+	bls	space
+sign:
+	cmpb	#'-'
+	bne	plus
+	inc	@tmp2
+	bra	skip_sign
+plus:
+	cmpb	#'+'
+	bne	start
+skip_sign:
+	inx
+start:
+	clra
+	clrb
+	std	@tmp1
+	staa	@tmp3
+digits:
+	ldab	,x
+	subb	#'0'
+	cmpb	#9
+	bhi	done
+	stab	@tmp3+1
+	ldd	@tmp1
+	jsr	mulax10
+	addd	@tmp3
+	std	@tmp1
+	inx
+	bra	digits
+done:
+	ldd	@tmp1
+	tst	@tmp2
+	beq	result
+	coma
+	comb
+	addd	@one
+result:
+	rts

@@ -19,14 +19,14 @@ OBJ += tosultax.o tosugtax.o tosuleax.o tosugeax.o
 OBJ += tosumulax.o tosumodeax.o multiply32x32.o
 
 OBJ += __cpu_to_le16.o __cpu_to_le32.o
-OBJ += _memcpy.o _memset.o _memchr.o _memrchr.o
+OBJ += _memcpy.o _memset.o _memchr.o _memrchr.o _memccpy.o
 OBJ += _strlen.o _strcpy.o _strcmp.o _strncmp.o _strchr.o
-OBJ += _strcat.o _strncpy.o _strrchr.o _strnlen.o
+OBJ += _strcat.o _strncpy.o _strrchr.o _strnlen.o _strlcpy.o _strlcat.o
 OBJ += _isalnum.o _isalpha.o _isascii.o _isblank.o _iscntrl.o
 OBJ += _isdigit.o _isgraph.o _islower.o _isprint.o _ispunct.o
 OBJ += _isspace.o _isupper.o _isxdigit.o
 OBJ += _tolower.o _toupper.o
-OBJ += _labs.o
+OBJ += _abs.o _labs.o _atoi.o
 OBJ += _longjmp.o _setjmp.o
 
 all: lib6800.a
