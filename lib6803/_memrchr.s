@@ -5,20 +5,16 @@
 _memrchr:
 		tsx
 		ldd 6,x
-		dex			; as we are working from the end
-					; not start+len
-		std @tmp2		; end mark
+		std @tmp2		; start of the search range
 		addd 2,x
-		std @tmp		; end to start from
+		std @tmp		; one byte past the search range
 		ldab 5,x
 		ldx @tmp
-		; Must do the compare before the end check, see the C
-		; standard.
 		bra memchrn
 memrchrl:
+		dex
 		cmpb ,x
 		beq strmatch
-		dex
 memchrn:
 		cpx @tmp2
 		bne memrchrl

@@ -18,5 +18,6 @@ extern size_t strnlen(const char *__s, size_t n);
 extern void *memcpy(void *__dest, const void *__src, size_t __n);
 extern void *memset(void *__s, int __c, size_t __n);
 extern void *memchr(const void *__s, int __c, size_t __n);
+extern void *memrchr(const void *__s, int __c, size_t __n);
 
 #endif
