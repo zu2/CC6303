@@ -1103,7 +1103,8 @@ static void ArrayRef (ExprDesc* Expr)
             */
             if ((ED_IsLocConst (&Subscript) || ED_IsLocStack (&Subscript)) &&
                 CheckedSizeOf (ElementType) == SIZEOF_CHAR &&
-                !(IsTypeChar (Subscript.Type) && IsSignSigned (Subscript.Type))) {
+                !(IsTypeChar (Subscript.Type) && IsSignSigned (Subscript.Type)) &&
+                !(IsTypeLong (Subscript.Type) && IsQualVolatile (Subscript.Type))) {
 
                 unsigned Flags;
 
@@ -1112,6 +1113,9 @@ static void ArrayRef (ExprDesc* Expr)
                     Flags = CF_CHAR;
                 } else {
                     Flags = CF_INT;
+                    if (IsTypeLong (Subscript.Type)) {
+                        Subscript.IVal += SIZEOF_LONG - SIZEOF_INT;
+                    }
                 }
                 RemoveCode (&Mark2);
 
