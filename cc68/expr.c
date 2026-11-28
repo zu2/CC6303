@@ -3748,6 +3748,16 @@ static void addsubeq (const GenDesc* Gen, ExprDesc *Expr, const char* Op)
     rflags |= TypeOf (Expr2.Type) | CF_FORCECHAR;
 
     if (ED_IsConstAbs (&Expr2)) {
+        if (Gen->Tok == TOK_PLUS_ASSIGN && Expr2.IVal == 0 &&
+            IsTypeChar (Expr->Type) && !ED_IsBitField (Expr)) {
+            LoadExpr (CF_NONE, Expr);
+            if (IsQualVolatile (Expr->Type)) {
+                Store (Expr, 0);
+            }
+            ED_MakeRValExpr (Expr);
+            return;
+        }
+
         /* The resulting value is a constant */
         rflags |= CF_CONST;
         lflags |= CF_CONST;
