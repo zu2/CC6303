@@ -28,25 +28,27 @@ laddeqysp:
 	ldx @tmp
 	pula
 	pulb
-	bsr laddeq
-;	The caller of laddeqysp expects the result of the addition to be in @sreg:D
-	staa @sreg
-	stab @sreg+1
-	ldaa 2,x
-	ldab 3,x
-	rts
+	bra laddeq
 laddeqa:
 	clr @tmp+1
 	clr @tmp
-laddeq:			; Add the 32bit sreg/d to the variable at X
-	addb 3,x	; do the low 16bits
+; (0-3,x) += @sreg:D
+; @sreg:D = (0-3,x)
+laddeq:
+	addb 3,x
 	stab 3,x
 	adca 2,x
 	staa 2,x
+	pshb
+	psha
 	ldab @sreg+1
 	adcb 1,x
 	stab 1,x
+	stab @sreg+1
 	ldaa @sreg
 	adca 0,x
-	staa 0,x 
+	staa 0,x
+	staa @sreg
+	pula
+	pulb
 	rts
