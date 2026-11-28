@@ -19,6 +19,16 @@ OBJ += _strcmp.o _strncmp.o _strlcpy.o _strlcat.o _strncpy.o
 OBJ += _abs.o _labs.o _atoi.o
 OBJ += _longjmp.o _setjmp.o
 
+# Compiler helpers shared by the 6800 and 6803.
+OBJ += ../lib6800/asr.o ../lib6800/asrax.o ../lib6800/asrax8.o ../lib6800/asreax.o
+OBJ += ../lib6800/shreax.o ../lib6800/shreax8.o ../lib6800/tosshreax.o
+OBJ += ../lib6800/dtox.o ../lib6800/jumpx.o ../lib6800/laddeqstatic16.o ../lib6800/tosumodax.o
+OBJ += ../lib6800/leq.o ../lib6800/lne.o ../lib6800/lge.o ../lib6800/lgt.o ../lib6800/lle.o ../lib6800/llt.o
+OBJ += ../lib6800/luge.o ../lib6800/lugt.o ../lib6800/lule.o ../lib6800/lult.o
+OBJ += ../lib6800/toseqax.o ../lib6800/tosneax.o ../lib6800/tosgeax.o
+OBJ += ../lib6800/tosgtax.o ../lib6800/tosleax.o ../lib6800/tosltax.o
+OBJ += ../lib6800/tosugeax.o ../lib6800/tosugtax.o ../lib6800/tosuleax.o ../lib6800/tosultax.o
+
 all: lib6803.a
 
 .s.o:

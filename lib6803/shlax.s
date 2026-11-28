@@ -13,6 +13,7 @@
 	.export shlax5
 	.export shlax4
 	.export shlax3
+	.export shlax2
 
 	.setcpu 6803
 	.code
@@ -27,6 +28,7 @@ shlax4:
 	lsld
 shlax3:
 	lsld
+shlax2:
 	lsld
 	lsld
 	rts

@@ -2,6 +2,8 @@
 ;	Stack unwind helpers
 ;
 	.export pop4
+	.export true4
+	.export false4
 	.export tpop4
 	.export swap32pop4
 	.export pop4flags
@@ -26,3 +28,10 @@ pop4flags:
 	pulx
 	tstb
 	bra pop4h
+
+false4:
+	ldd @zero
+	bra pop4
+true4:
+	ldd @one
+	bra pop4

@@ -14,6 +14,7 @@
 	.export shrax5
 	.export shrax4
 	.export shrax3
+	.export shrax2
 
 	.setcpu 6803
 	.code
@@ -27,6 +28,7 @@ shrax4:
 	lsrd
 shrax3:
 	lsrd
+shrax2:
 	lsrd
 	lsrd
 	rts
