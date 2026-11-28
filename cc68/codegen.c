@@ -2490,20 +2490,19 @@ void g_addeqstatic (unsigned flags, uintptr_t label, long offs,
                 InvalidateX();
                 AddCodeLine("ldx #%s", lbuf);
                 if (flags & CF_FORCECHAR) {
-                    if (flags & CF_CONST) {
-                        if (val <= 4) {
-                            if (flags & CF_UNSIGNED) {
-                                while(val--)
-                                    AddCodeLine("inc ,x");
-                                AddCodeLine("ldab ,x");
-                            } else {
-                                AddCodeLine("jsr baddeqstatic%d", (int)val);
-                                return;
-                            }
+                    if ((flags & CF_CONST) && val <= 4) {
+                        if (flags & CF_UNSIGNED) {
+                            while(val--)
+                                AddCodeLine("inc ,x");
+                            AddCodeLine("ldab ,x");
                         } else {
-                            AddCodeLine("ldab #%d", (int)val);
+                            AddCodeLine("jsr baddeqstatic%d", (int)val);
                         }
-                    } else if (flags & CF_UNSIGNED) {
+                        return;
+                    }
+                    if (flags & CF_CONST)
+                        AddCodeLine("ldab #$%02X", (unsigned char)val);
+                    if (flags & CF_UNSIGNED) {
                         AddCodeLine("clra");
                         AddCodeLine("addb ,x");
                         AddCodeLine("stab ,x");
