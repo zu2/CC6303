@@ -47,6 +47,7 @@
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
+#include <limits.h>
 #include <math.h>
 
 /* common */
@@ -573,7 +574,9 @@ static void NumericConst (void)
         }
 
         /* Check the range to determine the type */
-        if (IVal > 0x7FFF) {
+        if (Preprocessing) {
+            Types &= IT_LONG | IT_ULONG;
+        } else if (IVal > 0x7FFF) {
             /* Out of range for int */
             Types &= ~IT_INT;
             /* If the value is in the range 0x8000..0xFFFF, unsigned int is not
@@ -584,11 +587,11 @@ static void NumericConst (void)
                 Warning ("Constant is long");
             }
         }
-        if (IVal > 0xFFFF) {
+        if (!Preprocessing && IVal > 0xFFFF) {
             /* Out of range for unsigned int */
             Types &= ~IT_UINT;
         }
-        if (IVal > 0x7FFFFFFF) {
+        if (IVal > (Preprocessing ? LONG_MAX : 0x7FFFFFFFUL)) {
             /* Out of range for long int */
             Types &= ~IT_LONG;
         }
